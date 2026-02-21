@@ -66,6 +66,209 @@
   --color-convertible: #06B6D4;
 }
 
+/* ============================================
+   LANDING PAGE
+   ============================================ */
+.landing-page {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 10;
+  padding: var(--sp-8) var(--sp-6);
+  background: linear-gradient(135deg, #1a1a5e 0%, #1e3a7a 30%, #1a2744 70%, #0f172a 100%);
+}
+
+.landing-inner {
+  max-width: 780px;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-10);
+}
+
+.landing-hero {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-5);
+  animation: landingFadeUp 0.8s ease both;
+}
+
+.landing-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-pill);
+  padding: var(--sp-2) var(--sp-4);
+  font-size: var(--fs-xs);
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.8);
+  backdrop-filter: blur(8px);
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.landing-badge svg {
+  color: #4ade80;
+}
+
+.landing-headline {
+  font-size: clamp(2rem, 5vw, 3.2rem);
+  font-weight: 800;
+  color: white;
+  line-height: 1.2;
+  letter-spacing: -0.02em;
+}
+
+.landing-headline strong {
+  background: linear-gradient(135deg, #818CF8, #C084FC);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.landing-subline {
+  font-size: var(--fs-base);
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.7;
+  max-width: 560px;
+}
+
+.landing-subline strong {
+  color: rgba(255, 255, 255, 0.9);
+  font-weight: 600;
+}
+
+.landing-cta {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: var(--sp-4) var(--sp-8);
+  font-size: var(--fs-lg);
+  font-weight: 700;
+  border: none;
+  border-radius: var(--radius-pill);
+  cursor: pointer;
+  background: linear-gradient(135deg, #818CF8, #C084FC);
+  color: white;
+  box-shadow: 0 4px 24px rgba(129, 140, 248, 0.4);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  margin-top: var(--sp-3);
+}
+
+.landing-cta:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 6px 32px rgba(129, 140, 248, 0.55);
+}
+
+.landing-cta:active {
+  transform: translateY(0);
+}
+
+.landing-stats {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-6);
+  flex-wrap: wrap;
+  animation: landingFadeUp 0.8s ease 0.25s both;
+}
+
+.landing-stat {
+  text-align: center;
+}
+
+.landing-stat-value {
+  font-size: var(--fs-2xl);
+  font-weight: 900;
+  color: white;
+  letter-spacing: -0.02em;
+}
+
+.landing-stat-label {
+  font-size: var(--fs-xs);
+  color: rgba(255, 255, 255, 0.5);
+  font-weight: 500;
+  line-height: 1.4;
+  margin-top: 2px;
+}
+
+.landing-stat-divider {
+  width: 1px;
+  height: 40px;
+  background: rgba(255, 255, 255, 0.12);
+}
+
+.landing-partners {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-4);
+  animation: landingFadeUp 0.8s ease 0.5s both;
+}
+
+.landing-partners-label {
+  font-size: var(--fs-xs);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.35);
+}
+
+.landing-partner-logos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--sp-8);
+  flex-wrap: wrap;
+}
+
+.landing-partner-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 100px;
+  height: 50px;
+}
+
+.landing-partner-logo img {
+  max-height: 40px;
+  max-width: 140px;
+  filter: brightness(0) invert(1);
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.landing-partner-logo img:hover {
+  opacity: 0.9;
+}
+
+.partner-fallback {
+  font-size: var(--fs-lg);
+  font-weight: 800;
+  color: rgba(255, 255, 255, 0.5);
+  letter-spacing: 1px;
+}
+
+@keyframes landingFadeUp {
+  from {
+    opacity: 0;
+    transform: translateY(24px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 /* ---------- Reset ---------- */
 *,
 *::before,
@@ -164,6 +367,208 @@ body {
   position: relative;
   z-index: 1;
   min-height: 100vh;
+}
+
+/* ============================================
+   NAVIGATION BAR
+   ============================================ */
+.app-shell {
+  overflow: hidden;
+}
+
+.top-bar {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-6);
+  padding: var(--sp-3) var(--sp-6);
+  background: rgba(255, 255, 255, 0.72);
+  backdrop-filter: blur(16px) saturate(180%);
+  -webkit-backdrop-filter: blur(16px) saturate(180%);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+
+.logo {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-2);
+  flex-shrink: 0;
+}
+
+.logo-text {
+  font-size: var(--fs-base);
+  font-weight: 800;
+  color: var(--text-primary);
+  letter-spacing: -0.02em;
+}
+
+.tab-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-left: auto;
+}
+
+.tab-btn {
+  position: relative;
+  background: none;
+  border: none;
+  padding: var(--sp-3) var(--sp-4);
+  font-family: var(--font);
+  font-size: var(--fs-sm);
+  font-weight: 500;
+  color: var(--text-muted);
+  cursor: pointer;
+  transition: color 0.25s ease;
+  white-space: nowrap;
+}
+
+.tab-btn::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: var(--sp-4);
+  right: var(--sp-4);
+  height: 2px;
+  background: var(--accent);
+  border-radius: 2px 2px 0 0;
+  transform: scaleX(0);
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.tab-btn:hover {
+  color: var(--text-primary);
+}
+
+.tab-btn.active {
+  color: var(--accent);
+  font-weight: 600;
+}
+
+.tab-btn.active::after {
+  transform: scaleX(1);
+}
+
+/* ============================================
+   TUNNEL TRANSITION (Landing → App)
+   ============================================ */
+.landing-page.tunnel-out {
+  animation: tunnelZoomOut 0.8s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+}
+
+@keyframes tunnelZoomOut {
+  0% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: scale(2.5);
+    filter: blur(8px);
+  }
+}
+
+.app-shell.tunnel-in {
+  animation: tunnelZoomIn 0.7s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes tunnelZoomIn {
+  0% {
+    opacity: 0;
+    transform: scale(0.85);
+    filter: blur(6px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: scale(1);
+    filter: blur(0);
+  }
+}
+
+/* ============================================
+   DIRECTIONAL TAB SLIDES
+   ============================================ */
+.tab-content {
+  position: relative;
+  will-change: transform, opacity;
+}
+
+/* Slide out to left (going to a later tab) */
+.tab-content.slide-out-left {
+  animation: slideOutLeft 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Slide out to right (going to an earlier tab) */
+.tab-content.slide-out-right {
+  animation: slideOutRight 0.35s cubic-bezier(0.4, 0, 1, 1) forwards;
+}
+
+/* Slide in from right (arriving from left) */
+.tab-content.slide-in-right {
+  animation: slideInFromRight 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+/* Slide in from left (arriving from right) */
+.tab-content.slide-in-left {
+  animation: slideInFromLeft 0.45s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes slideOutLeft {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(-80px);
+  }
+}
+
+@keyframes slideOutRight {
+  0% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(80px);
+  }
+}
+
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(60px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+@keyframes slideInFromLeft {
+  0% {
+    opacity: 0;
+    transform: translateX(-60px);
+  }
+
+  100% {
+    opacity: 1;
+    transform: translateX(0);
+  }
+}
+
+/* Utility */
+.hidden {
+  display: none !important;
 }
 
 /* ============================================

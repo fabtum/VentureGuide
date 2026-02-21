@@ -42,10 +42,6 @@ export function renderIntlCapital(container) {
     <!-- PHASE 1: Hero Intro -->
     <div class="tab-intro" id="ic-intro">
       <div class="journey-step">
-        <div class="tp-tab-title">International Capital</div>
-      </div>
-
-      <div class="journey-step">
         <div class="tab-intro-content">
           <h1 class="tab-intro-headline">
             Increase your chance of getting<br/><strong>international capital</strong> by sending<br/>the right signals.

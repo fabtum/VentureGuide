@@ -13,6 +13,8 @@ const coachMessages = {
   'intl-capital': `This console simulates your <strong>probability of attracting international capital</strong>. Toggle instruments and adjust the timeline.`,
 };
 
+/* Tab ordering for directional slides */
+const tabOrder = ['typical-paths', 'path-simulator', 'key-investors', 'intl-capital'];
 let currentTab = 'typical-paths';
 
 const tabRenderers = {
@@ -25,19 +27,29 @@ const tabRenderers = {
 function switchTab(tabId) {
   if (tabId === currentTab) return;
 
+  const oldIdx = tabOrder.indexOf(currentTab);
+  const newIdx = tabOrder.indexOf(tabId);
+  const direction = newIdx > oldIdx ? 'left' : 'right'; // slide out direction
+
   document.querySelectorAll('.tab-btn').forEach(btn => {
     btn.classList.toggle('active', btn.dataset.tab === tabId);
     btn.setAttribute('aria-selected', btn.dataset.tab === tabId);
   });
 
   const contentEl = document.getElementById('tab-content');
-  contentEl.classList.add('fade-out');
+
+  // Slide old content out
+  contentEl.classList.remove('slide-in-left', 'slide-in-right');
+  contentEl.classList.add(`slide-out-${direction}`);
 
   setTimeout(() => {
     currentTab = tabId;
     contentEl.innerHTML = '';
-    contentEl.classList.remove('fade-out');
-    contentEl.classList.add('fade-in');
+
+    // Remove old animation, add slide-in from opposite side
+    contentEl.classList.remove('slide-out-left', 'slide-out-right');
+    const enterDir = direction === 'left' ? 'right' : 'left';
+    contentEl.classList.add(`slide-in-${enterDir}`);
 
     if (tabRenderers[tabId]) {
       tabRenderers[tabId](contentEl);
@@ -46,15 +58,13 @@ function switchTab(tabId) {
     const coachText = document.getElementById('coach-text');
     if (coachText) coachText.innerHTML = coachMessages[tabId] || '';
 
-    setTimeout(() => contentEl.classList.remove('fade-in'), 500);
-  }, 280);
+    // Clean up animation classes
+    setTimeout(() => contentEl.classList.remove('slide-in-left', 'slide-in-right'), 500);
+  }, 350);
 }
 
 /**
  * Sequential journey reveal — reveals .journey-step elements one after another.
- * @param {HTMLElement} container - parent container
- * @param {number} baseDelay - delay before first step (ms)
- * @param {number} stepDelay - delay between each step (ms)
  */
 export function journeyReveal(container, baseDelay = 300, stepDelay = 500) {
   const steps = container.querySelectorAll('.journey-step');
@@ -69,12 +79,30 @@ export function journeyReveal(container, baseDelay = 300, stepDelay = 500) {
 document.addEventListener('DOMContentLoaded', () => {
   initParticles();
 
-  // Render first tab immediately
-  const contentEl = document.getElementById('tab-content');
-  renderTypicalPaths(contentEl);
+  const landingPage = document.getElementById('landing-page');
+  const appShell = document.getElementById('app-shell');
+  const enterBtn = document.getElementById('landing-enter-btn');
 
-  // Tab nav
-  document.querySelectorAll('.tab-btn').forEach(btn => {
-    btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+  // Landing → App: tunnel zoom transition
+  enterBtn.addEventListener('click', () => {
+    landingPage.classList.add('tunnel-out');
+
+    setTimeout(() => {
+      landingPage.style.display = 'none';
+      appShell.classList.remove('hidden');
+      appShell.classList.add('tunnel-in');
+
+      // Render first tab
+      const contentEl = document.getElementById('tab-content');
+      renderTypicalPaths(contentEl);
+
+      // Tab nav
+      document.querySelectorAll('.tab-btn').forEach(btn => {
+        btn.addEventListener('click', () => switchTab(btn.dataset.tab));
+      });
+
+      // Clean up
+      setTimeout(() => appShell.classList.remove('tunnel-in'), 900);
+    }, 800);
   });
 });

@@ -66,10 +66,6 @@ export function renderKeyInvestors(container) {
     <!-- PHASE 1: Hero Intro -->
     <div class="tab-intro" id="ki-intro">
       <div class="journey-step">
-        <div class="tp-tab-title">Typical Investors</div>
-      </div>
-
-      <div class="journey-step">
         <div class="tab-intro-content">
           <h1 class="tab-intro-headline">
             Find the most prominent investors<br/>for your <strong>early-stage funding<br/>instruments</strong>.

@@ -5,8 +5,8 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <meta name="description"
-    content="Funding Journey — a data-driven tool for early-stage startup founders to explore funding paths, simulate rounds, discover investors, and assess international capital." />
-  <title>Funding Journey — Your Path to Growth</title>
+    content="VentureGuide — an evidence-based tool for early-stage startup founders to explore funding paths, discover investors, and assess international capital. Built on research by TUM & CMU." />
+  <title>VentureGuide — Evidence-Based Startup Funding</title>
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
@@ -18,8 +18,75 @@
   <div class="bg-gradient-orbs"></div>
 
   <div id="app">
-    <!-- ===== APP SHELL (shown immediately) ===== -->
-    <section class="app-shell" id="app-shell">
+
+    <!-- ===== LANDING PAGE ===== -->
+    <section class="landing-page" id="landing-page">
+      <div class="landing-inner">
+        <!-- Hero -->
+        <div class="landing-hero">
+          <div class="landing-badge">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            Evidence-Based Research
+          </div>
+          <h1 class="landing-headline">
+            Navigate Your <strong>Startup Funding</strong><br />with Data-Driven Confidence.
+          </h1>
+          <p class="landing-subline">
+            Built on a comprehensive study by <strong>Technical University of Munich (TUM)</strong> and <strong>Carnegie
+              Mellon University (CMU)</strong> — every recommendation is grounded in real funding data.
+          </p>
+          <button class="landing-cta" id="landing-enter-btn">
+            <span>Enter VentureGuide</span>
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+              stroke-linecap="round">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+        </div>
+
+        <!-- Stats bar -->
+        <div class="landing-stats">
+          <div class="landing-stat">
+            <div class="landing-stat-value">100,000+</div>
+            <div class="landing-stat-label">Funding Sequences<br />Analyzed</div>
+          </div>
+          <div class="landing-stat-divider"></div>
+          <div class="landing-stat">
+            <div class="landing-stat-value">2020</div>
+            <div class="landing-stat-label">Dataset<br />Baseline Year</div>
+          </div>
+          <div class="landing-stat-divider"></div>
+          <div class="landing-stat">
+            <div class="landing-stat-value">5</div>
+            <div class="landing-stat-label">Funding Instrument<br />Categories</div>
+          </div>
+        </div>
+
+        <!-- Partner logos -->
+        <div class="landing-partners">
+          <div class="landing-partners-label">Research Partners</div>
+          <div class="landing-partner-logos">
+            <div class="landing-partner-logo" id="lp-tum">
+              <img src="/assets/tum-logo.svg" alt="Technical University of Munich"
+                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>TUM</span>'" />
+            </div>
+            <div class="landing-partner-logo" id="lp-utum">
+              <img src="/assets/unternehmertum-logo.svg" alt="UnternehmerTUM"
+                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>UnternehmerTUM</span>'" />
+            </div>
+            <div class="landing-partner-logo" id="lp-cmu">
+              <img src="/assets/cmu-logo.svg" alt="Carnegie Mellon University"
+                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>CMU</span>'" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== APP SHELL (hidden until Enter is clicked) ===== -->
+    <section class="app-shell hidden" id="app-shell">
       <header class="top-bar">
         <div class="logo">
           <span class="logo-icon">
@@ -35,21 +102,14 @@
               </defs>
             </svg>
           </span>
-          <span class="logo-text">FundingJourney</span>
+          <span class="logo-text">VentureGuide</span>
         </div>
         <nav class="tab-nav" role="tablist">
-          <button class="tab-btn active" role="tab" data-tab="typical-paths" aria-selected="true">
-            <span class="tab-icon">📊</span> Typical Paths
-          </button>
-          <button class="tab-btn" role="tab" data-tab="path-simulator" aria-selected="false">
-            <span class="tab-icon">🛤️</span> Path Simulator
-          </button>
-          <button class="tab-btn" role="tab" data-tab="key-investors" aria-selected="false">
-            <span class="tab-icon">👥</span> Typical Investors
-          </button>
-          <button class="tab-btn" role="tab" data-tab="intl-capital" aria-selected="false">
-            <span class="tab-icon">🌍</span> International Capital
-          </button>
+          <button class="tab-btn active" role="tab" data-tab="typical-paths" aria-selected="true">Typical Paths</button>
+          <button class="tab-btn" role="tab" data-tab="path-simulator" aria-selected="false">Path Simulator</button>
+          <button class="tab-btn" role="tab" data-tab="key-investors" aria-selected="false">Typical Investors</button>
+          <button class="tab-btn" role="tab" data-tab="intl-capital" aria-selected="false">International
+            Capital</button>
         </nav>
       </header>
 

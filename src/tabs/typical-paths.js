@@ -203,10 +203,6 @@ export function renderTypicalPaths(container) {
     <!-- PHASE 1: Hero Intro -->
     <div class="tab-intro" id="tp-intro">
       <div class="journey-step">
-        <div class="tp-tab-title">Typical Paths</div>
-      </div>
-
-      <div class="journey-step">
         <div class="tab-intro-content">
           <h1 class="tab-intro-headline">
             Refine your <strong>early-stage funding<br/>journey</strong> by learning from the<br/>proven paths and timing signals of<br/>founders like <span class="hero-accent">YOU</span>.

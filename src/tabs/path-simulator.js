@@ -64,12 +64,9 @@ export function renderPathSimulator(container) {
     <!-- PHASE 1: Intro -->
     <div class="tab-intro" id="ps-intro">
       <div class="journey-step">
-        <div class="tp-tab-title">Path Simulator</div>
-      </div>
-      <div class="journey-step">
         <div class="tab-intro-content">
           <h1 class="tab-intro-headline">
-            Validate/simulate your <strong>early-stage<br/>funding journey</strong>.
+            Validate/simulate your <strong>early-stage<br/>funding path</strong>.
           </h1>
         </div>
       </div>
