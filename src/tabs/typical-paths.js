@@ -1,4 +1,5 @@
 import { journeyReveal } from '../main.js';
+import { handlePathSelection, updateContext } from '../ai-expert.js';
 
 /* ───── Data ───── */
 const instruments = [
@@ -381,6 +382,8 @@ export function renderTypicalPaths(container) {
 
   startBtn.addEventListener('click', () => {
     currentNarrative = narrativeSelect.value;
+    updateContext('industry', document.getElementById('tp-hero-industry').value);
+    updateContext('country', document.getElementById('tp-hero-country').value);
     syncIntroToPfb();
 
     // Fade out intro
@@ -520,6 +523,9 @@ export function renderTypicalPaths(container) {
       else { seg.classList.remove('highlighted'); seg.classList.add('dimmed'); }
     });
     updateStats(path.medianFirst, path.medianBetween);
+
+    // AI Expert evaluates the path
+    handlePathSelection(path.name, Math.floor(Math.random() * 20) + 10); // Mock series A rate
   }
 
   function deselectPath() {

@@ -1,4 +1,5 @@
 import { journeyReveal } from '../main.js';
+import { handleProbabilityChange, updateContext } from '../ai-expert.js';
 
 /* ── Instrument channels ── */
 const channels = [
@@ -198,6 +199,20 @@ export function renderIntlCapital(container) {
     // Update value display
     const valueEl = document.getElementById('dj-vu-value');
     if (valueEl) valueEl.textContent = prob + '%';
+
+    return prob; // Return for AI hook
+  }
+
+  // Debounced AI Expert hook
+  let aiHookTimeout = null;
+  function triggerAIEvaluation() {
+    clearTimeout(aiHookTimeout);
+    aiHookTimeout = setTimeout(() => {
+      const prob = updateVU();
+      const activeInstr = channelStates.filter(c => c.active).map(c => c.name);
+      const totalMonths = channelStates.reduce((acc, c) => acc + (c.active ? c.months : 0), 0);
+      handleProbabilityChange(prob, activeInstr, totalMonths);
+    }, 1000);
   }
 
   /* ── Channel toggles ── */
@@ -227,6 +242,7 @@ export function renderIntlCapital(container) {
         fillBar.style.width = '0%';
       }
       updateVU();
+      triggerAIEvaluation();
     });
 
     // Fader input
@@ -236,6 +252,7 @@ export function renderIntlCapital(container) {
       monthsDisplay.textContent = val;
       fillBar.style.width = (val / 60 * 100) + '%';
       updateVU();
+      triggerAIEvaluation();
     });
   });
 

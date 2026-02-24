@@ -5,13 +5,7 @@ import { renderPathSimulator } from './tabs/path-simulator.js';
 import { renderKeyInvestors } from './tabs/key-investors.js';
 import { renderIntlCapital } from './tabs/intl-capital.js';
 
-// Coach messages per tab
-const coachMessages = {
-  'typical-paths': `Hey, I am Jessica your personal Incubator expert....`,
-  'path-simulator': `Let's build <strong>your personal funding path</strong>. First choose your filters, then pick instruments step by step.`,
-  'key-investors': `Here are the <strong>top investors</strong> for your selected filters, ranked by relevance and timing.`,
-  'intl-capital': `This console simulates your <strong>probability of attracting international capital</strong>. Toggle instruments and adjust the timeline.`,
-};
+import { initAIExpert, handleTabSwitch } from './ai-expert.js';
 
 /* Tab ordering for directional slides */
 const tabOrder = ['typical-paths', 'path-simulator', 'key-investors', 'intl-capital'];
@@ -55,8 +49,7 @@ function switchTab(tabId) {
       tabRenderers[tabId](contentEl);
     }
 
-    const coachText = document.getElementById('coach-text');
-    if (coachText) coachText.innerHTML = coachMessages[tabId] || '';
+    handleTabSwitch(tabId);
 
     // Clean up animation classes
     setTimeout(() => contentEl.classList.remove('slide-in-left', 'slide-in-right'), 500);
@@ -78,6 +71,7 @@ export function journeyReveal(container, baseDelay = 300, stepDelay = 500) {
 // Initialize
 document.addEventListener('DOMContentLoaded', () => {
   initParticles();
+  initAIExpert();
 
   const landingPage = document.getElementById('landing-page');
   const appShell = document.getElementById('app-shell');

@@ -1,4 +1,5 @@
 import { journeyReveal } from '../main.js';
+import { handleInvestorSelection, updateContext } from '../ai-expert.js';
 
 /* ── Investor data keyed by instrument ── */
 const investorsByInstrument = {
@@ -148,13 +149,33 @@ export function renderKeyInvestors(container) {
         </div>
       </div>
 
+      <!-- Siegertreppchen (podium) -->
+      <div class="journey-step">
+        <div class="podium-arena" id="ki-podium"></div>
+      </div>
+
       <!-- Median stat card -->
       <div class="journey-step">
-        <div class="ki-median-card" id="ki-median-card">
-          <div class="ki-median-title">Median Time until this Funding<br/>in your ecosystem:</div>
+        <div class="ki-median-card full-width" id="ki-median-card" style="opacity: 0;">
+          <div class="ki-median-title">
+            <span style="display:inline-block; line-height:1.2;">Median Time until this Funding<br/>in your ecosystem:</span>
+            <span class="ki-median-instrument-badge" id="ki-median-badge"></span>
+          </div>
           <div class="ki-median-row">
-            <div class="ki-median-icon">
-              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round">
+            <div class="ki-median-icon" style="display:flex; gap: 8px;">
+              <!-- Checkered Finish Flag Icon -->
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M4 22V2"/>
+                <path d="M4 2h16v12H4"/>
+                <rect x="8" y="2" width="4" height="4" fill="currentColor" stroke="none"/>
+                <rect x="16" y="2" width="4" height="4" fill="currentColor" stroke="none"/>
+                <rect x="4" y="6" width="4" height="4" fill="currentColor" stroke="none"/>
+                <rect x="12" y="6" width="4" height="4" fill="currentColor" stroke="none"/>
+                <rect x="8" y="10" width="4" height="4" fill="currentColor" stroke="none"/>
+                <rect x="16" y="10" width="4" height="4" fill="currentColor" stroke="none"/>
+              </svg>
+              <!-- Clock Icon -->
+              <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                 <circle cx="12" cy="12" r="10"/>
                 <path d="M12 6v6l4 2"/>
               </svg>
@@ -162,11 +183,6 @@ export function renderKeyInvestors(container) {
             <div class="ki-median-value" id="ki-median-value">4 Months</div>
           </div>
         </div>
-      </div>
-
-      <!-- Siegertreppchen (podium) -->
-      <div class="journey-step">
-        <div class="podium-arena" id="ki-podium"></div>
       </div>
     </div>
   `;
@@ -213,6 +229,8 @@ export function renderKeyInvestors(container) {
   document.getElementById('ki-start-btn').addEventListener('click', () => {
     currentInstrument = document.getElementById('ki-hero-instrument').value;
     syncIntroToPfb();
+    updateContext('industry', document.getElementById('ki-hero-industry').value);
+    updateContext('country', document.getElementById('ki-hero-country').value);
 
     introEl.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     introEl.style.opacity = '0';
@@ -232,17 +250,38 @@ export function renderKeyInvestors(container) {
     const investors = investorsByInstrument[currentInstrument] || investorsByInstrument['Grants'];
     const color = getInstrumentColor(currentInstrument);
 
-    // Update median stat
+    // Update median stat (animate the whole card)
+    const medianCard = document.getElementById('ki-median-card');
     const medianEl = document.getElementById('ki-median-value');
-    if (medianEl) {
-      medianEl.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-      medianEl.style.opacity = '0';
-      medianEl.style.transform = 'translateY(6px)';
-      setTimeout(() => {
+    const medianBadge = document.getElementById('ki-median-badge');
+
+    if (medianCard) {
+      if (medianBadge) {
+        medianBadge.textContent = currentInstrument;
+        medianBadge.style.background = color;
+      }
+      if (medianEl) {
         medianEl.textContent = investors[0].medianTime;
-        medianEl.style.opacity = '1';
-        medianEl.style.transform = 'translateY(0)';
-      }, 260);
+      }
+
+      // Reset card transform before animating just in case it's a re-render
+      medianCard.style.transition = 'none';
+      medianCard.style.opacity = '0';
+      medianCard.style.transform = 'translateY(15px)';
+
+      // Trigger reflow to apply 'none' transition
+      medianCard.offsetHeight;
+
+      medianCard.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
+
+      // Delay median card until after the final (Rank 1) podium card fires
+      // Last bar delay = 300 + 4 * 500 = 2300ms. Card delay = 2950ms.
+      const finalDelay = 3100;
+
+      setTimeout(() => {
+        medianCard.style.opacity = '1';
+        medianCard.style.transform = 'translateY(0)';
+      }, finalDelay);
     }
 
     podiumEl.innerHTML = '';
@@ -266,9 +305,13 @@ export function renderKeyInvestors(container) {
             <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M18 13v6a2 2 0 01-2 2H5a2 2 0 01-2-2V8a2 2 0 012-2h6"/><polyline points="15 3 21 3 21 9"/><line x1="10" y1="14" x2="21" y2="3"/></svg>
           </a>
         </div>
+        <div class="podium-inv-deals">Deals: ${inv.deals}</div>
         <span class="podium-inv-badge" style="background:${color}">${currentInstrument}</span>
-        <span class="podium-inv-deals">${inv.deals} Deals</span>
       `;
+      card.style.cursor = 'pointer';
+      card.addEventListener('click', () => {
+        handleInvestorSelection(inv.name, currentInstrument, inv.rank);
+      });
 
       // Bar (the podium step)
       const bar = document.createElement('div');
@@ -278,6 +321,10 @@ export function renderKeyInvestors(container) {
 
       const rankNum = document.createElement('span');
       rankNum.className = 'podium-rank-num';
+      if (inv.rank === 1) rankNum.classList.add('rank-gold');
+      if (inv.rank === 2) rankNum.classList.add('rank-silver');
+      if (inv.rank === 3) rankNum.classList.add('rank-bronze');
+      if (inv.rank > 3) rankNum.classList.add('rank-other');
       rankNum.textContent = inv.rank;
       bar.appendChild(rankNum);
 

@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
     rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.2/dist/confetti.browser.min.js"></script>
 </head>
 
 <body>
@@ -69,16 +70,13 @@
           <div class="landing-partners-label">Research Partners</div>
           <div class="landing-partner-logos">
             <div class="landing-partner-logo" id="lp-tum">
-              <img src="/assets/tum-logo.svg" alt="Technical University of Munich"
-                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>TUM</span>'" />
+              <img src="/logos/tum_new.png" alt="Technical University of Munich" />
             </div>
             <div class="landing-partner-logo" id="lp-utum">
-              <img src="/assets/unternehmertum-logo.svg" alt="UnternehmerTUM"
-                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>UnternehmerTUM</span>'" />
+              <img src="/logos/unternehmertum.png" alt="UnternehmerTUM" />
             </div>
             <div class="landing-partner-logo" id="lp-cmu">
-              <img src="/assets/cmu-logo.svg" alt="Carnegie Mellon University"
-                onerror="this.parentElement.innerHTML='<span class=\'partner-fallback\'>CMU</span>'" />
+              <img src="/logos/cmu_new.png" alt="Carnegie Mellon University" />
             </div>
           </div>
         </div>
@@ -123,7 +121,7 @@
             <div class="coach-header">
               <div class="coach-avatar">
                 <div class="avatar-ring"></div>
-                <div class="avatar-img">J</div>
+                <img src="/jessica-avatar.png" alt="Jessica" class="avatar-img" />
               </div>
               <div class="coach-info">
                 <h3 class="coach-name">Jessica</h3>
@@ -135,9 +133,17 @@
               </div>
             </div>
             <div class="coach-messages" id="coach-messages">
-              <div class="coach-bubble">
-                <p id="coach-text">Hey, I am Jessica your personal Incubator expert....</p>
-                <span class="bubble-time">Just now</span>
+              <div class="coach-bubble ai-bubble">
+                <div class="ai-bubble-content">
+                  <img src="/jessica-avatar.png" class="ai-avatar" alt="Jessica" />
+                  <div class="ai-bubble-text">
+                    <p id="coach-text">Hi! I am Jessica, your personal Incubator Co-Pilot. I rely on a dataset of over
+                      100,000 funding sequences of your peers to help you benchmark your timing,
+                      investors, and probabilities.<br /><br />I am here to guide you, but feel free to ask me questions
+                      at any time.</p>
+                    <span class="bubble-time">Just now</span>
+                  </div>
+                </div>
               </div>
             </div>
             <div class="coach-input-area">

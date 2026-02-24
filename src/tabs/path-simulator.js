@@ -1,4 +1,5 @@
 import { journeyReveal } from '../main.js';
+import { handleSimulatorStepAdded, updateContext } from '../ai-expert.js';
 
 /* ───── Data (no Convertible) ───── */
 const instruments = [
@@ -144,6 +145,14 @@ export function renderPathSimulator(container) {
         </div>
       </div>
 
+      <!-- Distribution Picker -->
+      <div class="journey-step">
+        <div class="ps-dist-panel" id="ps-dist-panel">
+          <div class="ps-dist-title" id="ps-dist-title">Choose your 1st funding instrument</div>
+          <div class="ps-dist-bars" id="ps-dist-bars"></div>
+        </div>
+      </div>
+
       <!-- TRAIN TRACK -->
       <div class="journey-step">
         <div class="track-wrapper" id="track-wrapper">
@@ -181,14 +190,6 @@ export function renderPathSimulator(container) {
 
           <!-- Cumulative strip under the track -->
           <div class="track-cumulative" id="track-cumulative"></div>
-        </div>
-      </div>
-
-      <!-- Distribution Picker -->
-      <div class="journey-step">
-        <div class="ps-dist-panel" id="ps-dist-panel">
-          <div class="ps-dist-title" id="ps-dist-title">Choose your 1st funding instrument</div>
-          <div class="ps-dist-bars" id="ps-dist-bars"></div>
         </div>
       </div>
     </div>
@@ -230,6 +231,8 @@ export function renderPathSimulator(container) {
 
   document.getElementById('ps-start-btn').addEventListener('click', () => {
     syncPsIntroToPfb();
+    updateContext('industry', document.getElementById('ps-hero-industry').value);
+    updateContext('country', document.getElementById('ps-hero-country').value);
 
     introEl.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
     introEl.style.opacity = '0';
@@ -275,7 +278,13 @@ export function renderPathSimulator(container) {
         : `After ${chosenPath[step - 1].name} — choose your ${ordinals[step]} instrument`;
 
     const distBars = document.getElementById('ps-dist-bars');
-    distBars.innerHTML = '';
+    distBars.innerHTML = `
+      <div class="ps-dist-header">
+        <div class="ps-dist-label">Type</div>
+        <div class="ps-dist-bar-title">Share of peers that chose that instrument</div>
+        <div class="ps-dist-time">Median time</div>
+      </div>
+    `;
 
     dist.forEach((item, idx) => {
       const info = getInst(item.id);
@@ -314,6 +323,23 @@ export function renderPathSimulator(container) {
     const n = step + 1;
     fillSleeper(n, info, item);
     updateSummary();
+
+    // AI Expert evaluates the pacing
+    let cumulativeMonths = 0;
+    chosenPath.forEach(s => { cumulativeMonths += parseInt(s.time) || 0; });
+    handleSimulatorStepAdded(info.name, n, cumulativeMonths);
+
+    // Trigger full screen confetti when building the completed path
+    if (chosenPath.length === 4 && typeof window.confetti === 'function') {
+      window.confetti({
+        particleCount: 200,
+        spread: 160,
+        origin: { y: 0.6 },
+        colors: ['#4F46E5', '#10B981', '#F59E0B', '#F43F5E', '#3B82F6'],
+        zIndex: 9999
+      });
+    }
+
     setTimeout(() => renderDistribution(), 400);
   }
 
