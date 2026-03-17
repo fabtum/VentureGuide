@@ -7,49 +7,36 @@ const instruments = [
   { id: 'seed', name: 'Seed', color: 'var(--color-seed)', time: '5 mo', share: '22%' },
   { id: 'series-a', name: 'Series A', color: 'var(--color-series-a)', time: '8 mo', share: '18%' },
   { id: 'grant', name: 'Grant', color: 'var(--color-grant)', time: '2 mo', share: '28%' },
-  { id: 'angel', name: 'Angel', color: 'var(--color-angel)', time: '4 mo', share: '12%' },
 ];
 
 const distributions = {
   start: [
-    { id: 'preseed', pct: 32, time: '3 mo', share: '32%' },
+    { id: 'preseed', pct: 40, time: '3 mo', share: '40%' },
     { id: 'grant', pct: 28, time: '2 mo', share: '28%' },
-    { id: 'seed', pct: 22, time: '5 mo', share: '22%' },
-    { id: 'angel', pct: 12, time: '4 mo', share: '12%' },
+    { id: 'seed', pct: 26, time: '5 mo', share: '26%' },
     { id: 'series-a', pct: 6, time: '10 mo', share: '6%' },
   ],
   grant: [
-    { id: 'preseed', pct: 40, time: '4 mo', share: '40%' },
-    { id: 'seed', pct: 30, time: '6 mo', share: '30%' },
-    { id: 'angel', pct: 17, time: '3 mo', share: '17%' },
+    { id: 'preseed', pct: 46, time: '4 mo', share: '46%' },
+    { id: 'seed', pct: 41, time: '6 mo', share: '41%' },
     { id: 'grant', pct: 8, time: '2 mo', share: '8%' },
     { id: 'series-a', pct: 5, time: '12 mo', share: '5%' },
   ],
   preseed: [
-    { id: 'seed', pct: 42, time: '5 mo', share: '42%' },
-    { id: 'series-a', pct: 28, time: '10 mo', share: '28%' },
-    { id: 'angel', pct: 17, time: '4 mo', share: '17%' },
+    { id: 'seed', pct: 50, time: '5 mo', share: '50%' },
+    { id: 'series-a', pct: 37, time: '10 mo', share: '37%' },
     { id: 'grant', pct: 8, time: '2 mo', share: '8%' },
     { id: 'preseed', pct: 5, time: '3 mo', share: '5%' },
   ],
   seed: [
-    { id: 'series-a', pct: 55, time: '8 mo', share: '55%' },
+    { id: 'series-a', pct: 67, time: '8 mo', share: '67%' },
     { id: 'seed', pct: 22, time: '6 mo', share: '22%' },
-    { id: 'angel', pct: 12, time: '3 mo', share: '12%' },
     { id: 'preseed', pct: 6, time: '3 mo', share: '6%' },
     { id: 'grant', pct: 5, time: '2 mo', share: '5%' },
   ],
-  angel: [
-    { id: 'seed', pct: 40, time: '5 mo', share: '40%' },
-    { id: 'preseed', pct: 30, time: '3 mo', share: '30%' },
-    { id: 'series-a', pct: 17, time: '9 mo', share: '17%' },
-    { id: 'angel', pct: 8, time: '4 mo', share: '8%' },
-    { id: 'grant', pct: 5, time: '2 mo', share: '5%' },
-  ],
   'series-a': [
-    { id: 'series-a', pct: 55, time: '12 mo', share: '55%' },
+    { id: 'series-a', pct: 65, time: '12 mo', share: '65%' },
     { id: 'seed', pct: 25, time: '6 mo', share: '25%' },
-    { id: 'angel', pct: 10, time: '4 mo', share: '10%' },
     { id: 'preseed', pct: 6, time: '3 mo', share: '6%' },
     { id: 'grant', pct: 4, time: '2 mo', share: '4%' },
   ],
@@ -163,7 +150,7 @@ export function renderPathSimulator(container) {
           <!-- Sleepers (ties) -->
           <div class="track-sleepers">
             <!-- Start sleeper -->
-            <div class="track-sleeper track-sleeper--start rolled-in">
+            <div class="track-sleeper track-sleeper--start">
               <div class="sleeper-bar sleeper-bar--filled" style="--sleeper-color: var(--accent)">
                 <span class="sleeper-label">Start</span>
               </div>
@@ -186,10 +173,31 @@ export function renderPathSimulator(container) {
               </div>
             </div>
             `).join('')}
-          </div>
 
-          <!-- Cumulative strip under the track -->
-          <div class="track-cumulative" id="track-cumulative"></div>
+            <!-- Finish sleeper (integrated into the track) -->
+            <div class="track-gap" id="track-gap-finish"></div>
+            <div class="track-sleeper track-sleeper--finish" id="sleeper-finish">
+              <div class="sleeper-header">&nbsp;</div>
+              <div class="sleeper-bar sleeper-bar--finish sleeper-bar--disabled" id="sleeper-bar-finish">
+                <span class="sleeper-label">Finish</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Result Stats (hidden until Finish is clicked) -->
+      <div class="journey-step">
+        <div class="ps-result-stats" id="ps-result-stats" style="display:none;"></div>
+        <div class="ps-result-actions" id="ps-result-actions" style="display:none;">
+          <button class="hero-cta ps-retry-btn" id="ps-retry-btn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/></svg>
+            <span>Retry</span>
+          </button>
+          <button class="hero-cta ps-export-btn" id="ps-export-btn" style="background: var(--bg-surface); color: var(--accent); border: 1px solid var(--accent);">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><polyline points="10 9 9 9 8 9"/></svg>
+            <span>Export PDF</span>
+          </button>
         </div>
       </div>
     </div>
@@ -243,15 +251,19 @@ export function renderPathSimulator(container) {
       mainEl.classList.remove('hidden');
       journeyReveal(mainEl, 200, 600);
 
-      // Staggered roll-out of sleepers & gaps
-      const pieces = document.querySelectorAll('.track-gap, .track-sleeper:not(.track-sleeper--start)');
+      // Staggered roll-out of ALL sleepers & gaps
+      // The track is the 3rd .journey-step (index 2), so journeyReveal shows it at
+      // baseDelay(200) + 2*stepDelay(600) = 1400ms. We wait until AFTER that
+      // so the parent is visible before child animations begin.
+      const trackRevealDelay = 1600; // slightly after parent becomes visible
+      const pieces = document.querySelectorAll('.track-wrapper .track-sleeper, .track-wrapper .track-gap');
       pieces.forEach((el, i) => {
-        setTimeout(() => el.classList.add('rolled-in'), 500 + i * 180);
+        setTimeout(() => el.classList.add('rolled-in'), trackRevealDelay + i * 200);
       });
 
-      // Roll out rails
+      // Roll out rails in sync with the sleepers
       const wrapper = document.getElementById('track-wrapper');
-      setTimeout(() => wrapper.classList.add('rails-visible'), 300);
+      setTimeout(() => wrapper.classList.add('rails-visible'), trackRevealDelay);
 
       renderDistribution();
     }, 600);
@@ -263,7 +275,7 @@ export function renderPathSimulator(container) {
     if (step >= 4) {
       document.getElementById('ps-dist-bars').innerHTML = `
         <div style="text-align:center; color:var(--text-muted); padding:var(--sp-6); font-size:var(--fs-sm);">
-          🎉 Path complete! Review your full journey above.
+          🎉 Path complete! Review your full journey below.
         </div>`;
       document.getElementById('ps-dist-title').textContent = 'All steps selected';
       return;
@@ -282,7 +294,7 @@ export function renderPathSimulator(container) {
       <div class="ps-dist-header">
         <div class="ps-dist-label">Type</div>
         <div class="ps-dist-bar-title">Share of peers that chose that instrument</div>
-        <div class="ps-dist-time">Median time</div>
+        <div class="ps-dist-time">Median Time</div>
       </div>
     `;
 
@@ -293,6 +305,9 @@ export function renderPathSimulator(container) {
       row.style.opacity = '0';
       row.style.transform = 'translateX(-12px)';
       row.innerHTML = `
+        <div class="ps-dist-plus">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M12 5v14M5 12h14"/></svg>
+        </div>
         <div class="ps-dist-label">${info.name}</div>
         <div class="ps-dist-bar-track">
           <div class="ps-dist-bar-fill" style="width:0%; background:${info.color}">
@@ -322,23 +337,10 @@ export function renderPathSimulator(container) {
 
     const n = step + 1;
     fillSleeper(n, info, item);
-    updateSummary();
 
-    // AI Expert evaluates the pacing
-    let cumulativeMonths = 0;
-    chosenPath.forEach(s => { cumulativeMonths += parseInt(s.time) || 0; });
-    handleSimulatorStepAdded(info.name, n, cumulativeMonths);
-
-    // Trigger full screen confetti when building the completed path
-    if (chosenPath.length === 4 && typeof window.confetti === 'function') {
-      window.confetti({
-        particleCount: 200,
-        spread: 160,
-        origin: { y: 0.6 },
-        colors: ['#4F46E5', '#10B981', '#F59E0B', '#F43F5E', '#3B82F6'],
-        zIndex: 9999
-      });
-    }
+    // Enable Finish sleeper when at least one instrument is chosen
+    const finishBar = document.getElementById('sleeper-bar-finish');
+    if (finishBar) finishBar.classList.remove('sleeper-bar--disabled');
 
     setTimeout(() => renderDistribution(), 400);
   }
@@ -368,7 +370,22 @@ export function renderPathSimulator(container) {
       chosenPath.pop();
       clearSleeper(removedStep);
     }
-    updateSummary();
+
+    // Re-show distribution panel and hide results
+    const distPanel = document.getElementById('ps-dist-panel');
+    const resultEl = document.getElementById('ps-result-stats');
+    const actionsEl = document.getElementById('ps-result-actions');
+    if (distPanel) distPanel.style.display = '';
+    if (resultEl) { resultEl.style.display = 'none'; resultEl.innerHTML = ''; }
+    if (actionsEl) actionsEl.style.display = 'none';
+
+    // Toggle Finish sleeper disabled state
+    const finishBar = document.getElementById('sleeper-bar-finish');
+    if (finishBar) {
+      if (chosenPath.length > 0) finishBar.classList.remove('sleeper-bar--disabled');
+      else finishBar.classList.add('sleeper-bar--disabled');
+    }
+
     renderDistribution();
   }
 
@@ -389,26 +406,187 @@ export function renderPathSimulator(container) {
     if (gapEl) { gapEl.textContent = ''; gapEl.classList.remove('visible'); }
   }
 
-  /* ── Cumulative strip ── */
-  function updateSummary() {
-    const strip = document.getElementById('track-cumulative');
-    if (!strip) return;
+  /* ── Finish button handler ── */
+  function setupFinishButton() {
+    const finishBar = document.getElementById('sleeper-bar-finish');
+    if (!finishBar) return;
 
-    if (chosenPath.length === 0) {
-      strip.innerHTML = '';
-      strip.style.display = 'none';
-      return;
-    }
+    finishBar.addEventListener('click', () => {
+      if (chosenPath.length === 0 || finishBar.classList.contains('sleeper-bar--disabled')) return;
 
-    strip.style.display = 'flex';
-    let totalMonths = 0;
-    chosenPath.forEach(s => { totalMonths += parseInt(s.time) || 0; });
+      // Hide the distribution panel
+      const distPanel = document.getElementById('ps-dist-panel');
+      if (distPanel) distPanel.style.display = 'none';
 
-    strip.innerHTML = `
-      <span class="cumul-label">⏱️ Cumulative: <strong>${totalMonths} months</strong></span>
-      ${chosenPath.length === 4 ? '<span class="ps-prob-badge">Path complete</span>' : ''}
-    `;
+      // Confetti!
+      if (typeof window.confetti === 'function') {
+        window.confetti({
+          particleCount: 200,
+          spread: 160,
+          origin: { y: 0.6 },
+          colors: ['#4F46E5', '#10B981', '#F59E0B', '#F43F5E', '#3B82F6'],
+          zIndex: 9999
+        });
+      }
+
+      // Calculate stats
+      let totalMonths = 0;
+      chosenPath.forEach(s => { totalMonths += parseInt(s.time) || 0; });
+
+      // Shorter paths get higher startup counts
+      const baseCount = [820, 540, 310, 180];
+      const randomOffset = Math.floor(Math.random() * 80) - 40;
+      const startupCount = (baseCount[chosenPath.length - 1] || 200) + randomOffset;
+
+      // Build the path string
+      const pathStr = chosenPath.map(s => s.name).join(' → ');
+
+      // Show result stats
+      const resultEl = document.getElementById('ps-result-stats');
+      if (resultEl) {
+        resultEl.style.display = 'flex';
+        resultEl.innerHTML = `
+          <div class="stat-card tp-stat-card">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-label">Cumulative Time:</div>
+              <div class="stat-value">${totalMonths} Months</div>
+            </div>
+          </div>
+          <div class="stat-card tp-stat-card">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div>
+              <div class="stat-label">Startups in your ecosystem that chose this path:</div>
+              <div class="stat-value">${startupCount}</div>
+            </div>
+          </div>
+        `;
+        resultEl.classList.add('revealed');
+      }
+
+      // Show action buttons
+      const actionsEl = document.getElementById('ps-result-actions');
+      if (actionsEl) actionsEl.style.display = 'flex';
+
+      // Send summary to AI coach
+      handleSimulatorStepAdded(pathStr, chosenPath.length, totalMonths);
+    });
   }
 
+  /* ── Retry handler ── */
+  function setupRetryButton() {
+    const retryBtn = document.getElementById('ps-retry-btn');
+    if (!retryBtn) return;
+
+    retryBtn.addEventListener('click', () => {
+      // Clear all sleepers
+      for (let i = chosenPath.length; i >= 1; i--) {
+        clearSleeper(i);
+      }
+      chosenPath.length = 0;
+
+      // Hide results and actions
+      const resultEl = document.getElementById('ps-result-stats');
+      const actionsEl = document.getElementById('ps-result-actions');
+      if (resultEl) { resultEl.style.display = 'none'; resultEl.innerHTML = ''; }
+      if (actionsEl) actionsEl.style.display = 'none';
+
+      // Re-show distribution panel
+      const distPanel = document.getElementById('ps-dist-panel');
+      if (distPanel) distPanel.style.display = '';
+
+      // Reset Finish sleeper to disabled
+      const finishBar = document.getElementById('sleeper-bar-finish');
+      if (finishBar) finishBar.classList.add('sleeper-bar--disabled');
+
+      renderDistribution();
+    });
+  }
+
+  /* ── Export PDF handler ── */
+  function setupExportButton() {
+    const exportBtn = document.getElementById('ps-export-btn');
+    if (!exportBtn) return;
+
+    exportBtn.addEventListener('click', () => {
+      if (chosenPath.length === 0) return;
+
+      let totalMonths = 0;
+      chosenPath.forEach(s => { totalMonths += parseInt(s.time) || 0; });
+      const pathStr = chosenPath.map(s => s.name).join(' → ');
+
+      // Build a simple printable HTML and use browser print
+      const printContent = `
+        <!DOCTYPE html>
+        <html><head><title>VentureGuide - Path Export</title>
+        <style>
+          body { font-family: 'Inter', 'Segoe UI', sans-serif; padding: 40px; color: #1a1a2e; }
+          h1 { color: #4F46E5; font-size: 24px; margin-bottom: 8px; }
+          h2 { font-size: 18px; color: #64748b; font-weight: 400; margin-bottom: 32px; }
+          .path-box { background: #f8f6ff; border: 1px solid #e0daf5; border-radius: 12px; padding: 24px; margin-bottom: 24px; }
+          .path-label { font-size: 12px; color: #64748b; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
+          .path-value { font-size: 20px; font-weight: 700; color: #1a1a2e; }
+          .stats { display: flex; gap: 24px; margin-top: 24px; }
+          .stat { flex: 1; background: #f1f5f9; border-radius: 12px; padding: 20px; }
+          .stat-label { font-size: 12px; color: #64748b; margin-bottom: 4px; }
+          .stat-val { font-size: 28px; font-weight: 700; color: #4F46E5; }
+          .steps { margin-top: 24px; }
+          .step { display: flex; align-items: center; gap: 12px; padding: 12px 0; border-bottom: 1px solid #e2e8f0; }
+          .step-num { width: 28px; height: 28px; border-radius: 50%; background: #4F46E5; color: white; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px; flex-shrink: 0; }
+          .step-name { font-weight: 600; }
+          .step-time { color: #64748b; margin-left: auto; }
+          .footer { margin-top: 40px; font-size: 12px; color: #94a3b8; }
+        </style></head><body>
+          <h1>VentureGuide</h1>
+          <h2>Simulated Funding Path Export</h2>
+          <div class="path-box">
+            <div class="path-label">Selected Path</div>
+            <div class="path-value">${pathStr}</div>
+          </div>
+          <div class="steps">
+            ${chosenPath.map((s, i) => `
+              <div class="step">
+                <div class="step-num">${i + 1}</div>
+                <div class="step-name">${s.name}</div>
+                <div class="step-time">${s.time}</div>
+              </div>
+            `).join('')}
+          </div>
+          <div class="stats">
+            <div class="stat">
+              <div class="stat-label">Cumulative Time</div>
+              <div class="stat-val">${totalMonths} Months</div>
+            </div>
+            <div class="stat">
+              <div class="stat-label">Steps</div>
+              <div class="stat-val">${chosenPath.length}</div>
+            </div>
+          </div>
+          <div class="footer">Generated by VentureGuide · ${new Date().toLocaleDateString()}</div>
+        </body></html>
+      `;
+
+      const printWindow = window.open('', '_blank');
+      printWindow.document.write(printContent);
+      printWindow.document.close();
+      setTimeout(() => printWindow.print(), 300);
+    });
+  }
+
+  setupFinishButton();
+  setupRetryButton();
+  setupExportButton();
   journeyReveal(introEl, 300, 500);
 }

@@ -31,13 +31,6 @@ const investorsByInstrument = {
     { rank: 4, name: 'Balderton', deals: 134, url: '#', medianTime: '8 Months' },
     { rank: 5, name: 'Northzone', deals: 89, url: '#', medianTime: '7 Months' },
   ],
-  'Business Angels': [
-    { rank: 1, name: 'Frank Thelen', deals: 142, url: '#', medianTime: '2 Months' },
-    { rank: 2, name: 'Verena Pausder', deals: 98, url: '#', medianTime: '3 Months' },
-    { rank: 3, name: 'Jens Begemann', deals: 74, url: '#', medianTime: '2 Months' },
-    { rank: 4, name: 'Lea-Sophie Cramer', deals: 56, url: '#', medianTime: '3 Months' },
-    { rank: 5, name: 'Florian Leibert', deals: 34, url: '#', medianTime: '4 Months' },
-  ],
 };
 
 /* ── Podium layout order: 4th, 2nd, 1st, 3rd, 5th (visual positions left→right) ── */
@@ -54,7 +47,6 @@ function getInstrumentColor(instrument) {
     'PreSeed': 'var(--color-preseed)',
     'Seed': 'var(--color-seed)',
     'Series A': 'var(--color-series-a)',
-    'Business Angels': 'var(--color-angel)',
   };
   return map[instrument] || 'var(--accent)';
 }
@@ -91,7 +83,7 @@ export function renderKeyInvestors(container) {
           <div class="hero-filter-group">
             <label class="hero-filter-label">Instrument:</label>
             <select class="hero-filter-select" id="ki-hero-instrument">
-              <option>Grants</option><option>PreSeed</option><option>Seed</option><option>Series A</option><option>Business Angels</option>
+              <option>Grants</option><option>PreSeed</option><option>Seed</option><option>Series A</option>
             </select>
           </div>
         </div>
@@ -138,7 +130,7 @@ export function renderKeyInvestors(container) {
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Instrument:</label>
                 <select class="pfb-dropdown-select" id="ki-pfb-instrument">
-                  <option>Grants</option><option>PreSeed</option><option>Seed</option><option>Series A</option><option>Business Angels</option>
+                  <option>Grants</option><option>PreSeed</option><option>Seed</option><option>Series A</option>
                 </select>
               </div>
             </div>

@@ -1,6 +1,7 @@
 /**
  * Local AI Incubator Expert (Jessica) logic.
  * Reacts to UI events contextually based on the Antigravity System Prompt.
+ * Now supports minimized mode with floating avatar and speech bubble notifications.
  */
 
 // User context state
@@ -14,19 +15,280 @@ const userContext = {
 // --- DOM References ---
 let messagesContainer = null;
 let currentTabId = 'typical-paths';
+let isPanelOpen = false;
+
+// --- Gemini API ---
+const GEMINI_API_KEY = 'AIzaSyDdqKWqPpKTshwFp5XMEHWMXC0V0oSbn6Y';
+const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
+
+// Keep conversation history for contextual replies
+const chatHistory = [];
+const MAX_HISTORY = 20;
+const SYSTEM_PROMPT = `You are Jessica, an experienced AI Incubator Expert and startup funding coach.
+
+Style rules:
+- Keep replies SHORT and engaging — max 2-4 sentences + bullet points if needed.
+- Use emojis naturally to keep the tone warm and energetic 🚀💡🎯
+- Use bullet points for lists instead of long paragraphs.
+- End each reply with exactly ONE targeted follow-up question to learn more about the user.
+- Respond in the same language the user writes in (German, English, etc.).
+- Be warm, encouraging, and feel like a trusted mentor — not a generic chatbot.
+
+Content rules:
+- Provide actionable, well-founded advice on startup funding, venture capital, grants, angel investment, accelerators, and fundraising strategy.
+- ONLY rely on established, verifiable knowledge. If unsure, say so honestly — never hallucinate or make up data.
+- Reference the conversation history to build on previous exchanges and avoid repeating yourself.
+
+Tab navigation — guide the user to the right tool when relevant:
+- When they want to see how peers got funded or compare paths → suggest "Check out the **Typical Paths** tab! 📊"
+- When they want to plan their own funding journey or see typical timelines → suggest "Try the **Path Simulator** tab! 🛤️"
+- When they want to find investors for their ecosystem or stage → suggest "Head over to the **Key Investors** tab! 🔍"
+- When they ask about international or cross-border funding → suggest "Take a look at the **International Capital** tab! 🌍"
+Only mention a tab when it is genuinely relevant to the user's question — don't force it.`;
+
+async function callGeminiAPI(userMessage) {
+    // Add user message to history
+    chatHistory.push({ role: 'user', parts: [{ text: userMessage }] });
+    // Trim history to last 4 messages
+    while (chatHistory.length > MAX_HISTORY) chatHistory.shift();
+
+    const body = {
+        system_instruction: { parts: [{ text: SYSTEM_PROMPT }] },
+        contents: chatHistory,
+        generationConfig: {
+            maxOutputTokens: 1024,
+            temperature: 0.7,
+        }
+    };
+
+    const MAX_RETRIES = 3;
+    let lastError = null;
+
+    for (let attempt = 0; attempt < MAX_RETRIES; attempt++) {
+        try {
+            const res = await fetch(GEMINI_API_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(body),
+            });
+
+            // Handle rate limiting with retry
+            if (res.status === 429) {
+                const waitMs = Math.pow(2, attempt + 1) * 1000; // 2s, 4s, 8s
+                console.warn(`Gemini API rate limited (429). Retrying in ${waitMs}ms... (attempt ${attempt + 1}/${MAX_RETRIES})`);
+                await new Promise(resolve => setTimeout(resolve, waitMs));
+                continue;
+            }
+
+            if (!res.ok) {
+                const errData = await res.json().catch(() => ({}));
+                console.error(`Gemini API HTTP ${res.status}:`, errData);
+                lastError = `HTTP ${res.status}`;
+                continue;
+            }
+
+            const data = await res.json();
+            console.log('Gemini API response:', data);
+            const reply = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+            if (!reply) {
+                console.warn('Gemini API: no text in response', data);
+                return "I couldn't generate a response. Could you rephrase your question?";
+            }
+            // Add AI reply to history
+            chatHistory.push({ role: 'model', parts: [{ text: reply }] });
+            while (chatHistory.length > MAX_HISTORY) chatHistory.shift();
+            return reply;
+        } catch (err) {
+            console.error('Gemini API fetch error:', err);
+            lastError = err.message;
+        }
+    }
+
+    return `I'm currently experiencing high demand. Please wait a moment and try again. (${lastError || 'rate limited'})`;
+}
+
+/**
+ * Convert basic Markdown from Gemini responses to HTML.
+ * Handles **bold**, *italic*, bullet lists, and newlines.
+ */
+function formatMarkdown(text) {
+    if (!text) return text;
+    let html = text;
+    // Bold: **text** → <strong>text</strong>
+    html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
+    // Italic: *text* → <em>text</em>  (but not inside <strong>)
+    html = html.replace(/(?<!<\/?\w)\*(.+?)\*/g, '<em>$1</em>');
+    // Bullet lists: lines starting with - or •
+    html = html.replace(/^\s*[-•]\s+(.+)$/gm, '<li>$1</li>');
+    html = html.replace(/(<li>.*<\/li>)/gs, '<ul>$1</ul>');
+    // Clean up nested <ul> tags from multiple replacements
+    html = html.replace(/<\/ul>\s*<ul>/g, '');
+    // Newlines → <br/>
+    html = html.replace(/\n/g, '<br/>');
+    return html;
+}
+
+function postUserMessage(text) {
+    if (!messagesContainer) return;
+    const bubble = document.createElement('div');
+    bubble.className = 'coach-bubble user-bubble';
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+    bubble.innerHTML = `
+    <div class="user-bubble-content">
+      <div class="user-bubble-text">
+        <p>${text}</p>
+        <span class="bubble-time">${timeString}</span>
+      </div>
+    </div>
+  `;
+    messagesContainer.appendChild(bubble);
+    requestAnimationFrame(() => {
+        bubble.classList.add('slide-up-fade');
+        scrollToBottom();
+    });
+}
+
+function showTypingIndicator() {
+    if (!messagesContainer) return null;
+    const indicator = document.createElement('div');
+    indicator.className = 'coach-bubble ai-bubble typing-indicator';
+    indicator.innerHTML = `
+    <div class="ai-bubble-content">
+      <img src="/jessica-avatar.png" class="ai-avatar" alt="Jessica" />
+      <div class="ai-bubble-text">
+        <div class="typing-dots"><span></span><span></span><span></span></div>
+      </div>
+    </div>
+  `;
+    messagesContainer.appendChild(indicator);
+    scrollToBottom();
+    return indicator;
+}
+
+async function handleUserInput(text) {
+    if (!text.trim()) return;
+    postUserMessage(text);
+    const indicator = showTypingIndicator();
+    const reply = await callGeminiAPI(text);
+    if (indicator) indicator.remove();
+    postCoachMessage(formatMarkdown(reply), 0);
+}
+
+// --- Coach Panel Toggle ---
+function openPanel() {
+    isPanelOpen = true;
+    document.body.classList.add('coach-open');
+    const panel = document.getElementById('coach-panel-aside');
+    if (panel) {
+        panel.classList.add('open');
+        // Re-trigger animation
+        panel.style.animation = 'none';
+        panel.offsetHeight; // force reflow
+        panel.style.animation = '';
+    }
+    // Hide speech bubble when panel is open
+    const bubble = document.getElementById('coach-speech-bubble');
+    if (bubble) bubble.classList.add('hidden');
+    // Scroll to bottom of messages
+    scrollToBottom();
+}
+
+function closePanel() {
+    isPanelOpen = false;
+    document.body.classList.remove('coach-open');
+    const panel = document.getElementById('coach-panel-aside');
+    if (panel) panel.classList.remove('open');
+}
+
+function togglePanel() {
+    if (isPanelOpen) closePanel();
+    else openPanel();
+}
+
+// --- Speech Bubble ---
+export function showSpeechBubble(text) {
+    if (isPanelOpen) return; // Don't show bubble if panel is open
+    const bubble = document.getElementById('coach-speech-bubble');
+    const textEl = document.getElementById('coach-speech-text');
+    if (!bubble || !textEl) return;
+
+    // Render HTML directly instead of stripping it so bold tags and breaks show up
+    textEl.innerHTML = text;
+
+    bubble.classList.remove('hidden');
+    // Re-trigger animation
+    bubble.style.animation = 'none';
+    bubble.offsetHeight; // force reflow
+    bubble.style.animation = '';
+
+    // Auto-hide after 8 seconds
+    if (showSpeechBubble._timer) clearTimeout(showSpeechBubble._timer);
+    showSpeechBubble._timer = setTimeout(() => hideSpeechBubble(), 8000);
+}
+
+function hideSpeechBubble() {
+    const bubble = document.getElementById('coach-speech-bubble');
+    if (bubble) bubble.classList.add('hidden');
+}
 
 export function initAIExpert() {
     messagesContainer = document.getElementById('coach-messages');
 
-    // Initial greeting context message (only once per session)
+    // --- FAB click → toggle panel ---
+    const fab = document.getElementById('coach-fab');
+    if (fab) fab.addEventListener('click', () => openPanel());
+
+    // --- Panel close button ---
+    const closeBtn = document.getElementById('coach-panel-close');
+    if (closeBtn) closeBtn.addEventListener('click', () => closePanel());
+
+    // --- Speech bubble close button ---
+    const speechClose = document.getElementById('coach-speech-close');
+    if (speechClose) speechClose.addEventListener('click', (e) => {
+        e.stopPropagation();
+        hideSpeechBubble();
+    });
+
+    // --- Click on speech bubble → open panel ---
+    const speechBubble = document.getElementById('coach-speech-bubble');
+    if (speechBubble) speechBubble.addEventListener('click', () => openPanel());
+
+    // --- Chat input handling ---
+    const chatInput = document.getElementById('coach-input');
+    const chatSend = document.getElementById('coach-send');
+
+    if (chatInput && chatSend) {
+        const submitMessage = () => {
+            const text = chatInput.value.trim();
+            if (!text) return;
+            chatInput.value = '';
+            handleUserInput(text);
+        };
+
+        chatSend.addEventListener('click', submitMessage);
+        chatInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                submitMessage();
+            }
+        });
+    }
+}
+
+/**
+ * Trigger the welcome message after the landing page transition.
+ * Called from main.js once the app shell is visible.
+ */
+export function triggerWelcomeMessage() {
+    const welcomeText = "Hi! I'm Jessica, your personal Incubator Co-Pilot. 👋<br/><br/>My recommendations are based on over <strong>100,000 funding sequences since 2020</strong> from founders just like you.<br/><br/>Here's what you can explore:<br/><ul><li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li><li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li><li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li><li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border investment</li></ul><br/>Feel free to ask me anything — I'll point you to the right tab! 🚀<br/><br/><strong>What is your name?</strong>";
+
     if (!sessionStorage.getItem('expertIntroduced')) {
-        setTimeout(() => {
-            postCoachMessage(
-                "I see you're building a Tech/Software startup in Germany. To start, are you currently validating your problem-solution fit (IRL 1-3), or already testing your MVP in the market?",
-                1000
-            );
-            sessionStorage.setItem('expertIntroduced', 'true');
-        }, 1500);
+        postCoachMessage(welcomeText, 800);
+        sessionStorage.setItem('expertIntroduced', 'true');
+    } else {
+        // Message already in chat, just pop the speech bubble
+        setTimeout(() => showSpeechBubble(welcomeText), 500);
     }
 }
 
@@ -55,7 +317,6 @@ export function postCoachMessage(text, delay = 0) {
   `;
 
     if (delay > 0) {
-        // Show a typing indicator first? For now, we just delay insertion.
         setTimeout(() => {
             messagesContainer.appendChild(bubble);
             requestAnimationFrame(() => {
@@ -63,6 +324,8 @@ export function postCoachMessage(text, delay = 0) {
                 bubble.classList.add('slide-up-fade');
                 scrollToBottom();
             });
+            // Show speech bubble notification if panel is closed
+            showSpeechBubble(text);
         }, delay);
     } else {
         messagesContainer.appendChild(bubble);
@@ -71,6 +334,8 @@ export function postCoachMessage(text, delay = 0) {
             bubble.classList.add('slide-up-fade');
             scrollToBottom();
         });
+        // Show speech bubble notification if panel is closed
+        showSpeechBubble(text);
     }
 }
 
@@ -105,12 +370,9 @@ export function handleTabSwitch(tabId) {
  * Called from Typical Paths tab when a path is selected
  */
 export function handlePathSelection(pathString, seriesARate) {
-    // Example pathString: "Grant → Pre-Seed → Seed"
     const msg = `
     You chose the path <strong>${pathString}</strong>.<br/><br/>
-    This sequence is often used to extend runway non-dilutively early on. It has a Series A conversion rate of ~${seriesARate}%.<br/>
-    <br/>
-    <strong>Question:</strong> How realistic is that timeline for you given your current customer traction? Are you moving fast enough to hit those subsequent milestones?
+    <strong>At which stage are you currently at?</strong>
   `;
     postCoachMessage(msg, 600);
 }

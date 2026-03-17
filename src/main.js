@@ -5,7 +5,7 @@ import { renderPathSimulator } from './tabs/path-simulator.js';
 import { renderKeyInvestors } from './tabs/key-investors.js';
 import { renderIntlCapital } from './tabs/intl-capital.js';
 
-import { initAIExpert, handleTabSwitch } from './ai-expert.js';
+import { initAIExpert, handleTabSwitch, triggerWelcomeMessage } from './ai-expert.js';
 
 /* Tab ordering for directional slides */
 const tabOrder = ['typical-paths', 'path-simulator', 'key-investors', 'intl-capital'];
@@ -96,7 +96,11 @@ document.addEventListener('DOMContentLoaded', () => {
       });
 
       // Clean up
-      setTimeout(() => appShell.classList.remove('tunnel-in'), 900);
+      setTimeout(() => {
+        appShell.classList.remove('tunnel-in');
+        // Trigger Jessica's welcome message after the transition
+        triggerWelcomeMessage();
+      }, 900);
     }, 800);
   });
 });

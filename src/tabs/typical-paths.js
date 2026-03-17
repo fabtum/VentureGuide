@@ -151,13 +151,23 @@ const narrativePathsData = {
     { rank: 3, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
     { rank: 4, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
     { rank: 5, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 6, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 8, name: 'PreSeed – PreSeed – Series A', steps: ['preseed', 'preseed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 9, name: 'PreSeed – Seed – Seed – Series A', steps: ['preseed', 'seed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 10, name: 'Grant – PreSeed – Seed – Series A', steps: ['grant', 'preseed', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
   ],
   'Grant-Focus': [
-    { rank: 1, name: 'Grant – Grant – PreSeed – Seed', steps: ['grant', 'grant', 'preseed', 'seed'], medianFirst: '2 Months', medianBetween: '3 Months' },
-    { rank: 2, name: 'Grant – PreSeed – Grant – Seed', steps: ['grant', 'preseed', 'grant', 'seed'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 1, name: 'Grant – Grant – PreSeed – Series A', steps: ['grant', 'grant', 'preseed', 'series-a'], medianFirst: '2 Months', medianBetween: '3 Months' },
+    { rank: 2, name: 'Grant – PreSeed – Grant – Series A', steps: ['grant', 'preseed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
     { rank: 3, name: 'Grant – Seed – Grant – Series A', steps: ['grant', 'seed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '5 Months' },
     { rank: 4, name: 'Grant – Grant – Seed – Series A', steps: ['grant', 'grant', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
     { rank: 5, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 6, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 7, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'Grant – Grant – Grant – Series A', steps: ['grant', 'grant', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '3 Months' },
+    { rank: 9, name: 'Grant – PreSeed – PreSeed – Series A', steps: ['grant', 'preseed', 'preseed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 10, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '7 Months' },
   ],
   'PreSeed to Seed': [
     { rank: 1, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
@@ -165,6 +175,11 @@ const narrativePathsData = {
     { rank: 3, name: 'PreSeed – PreSeed – Seed – Series A', steps: ['preseed', 'preseed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
     { rank: 4, name: 'Grant – PreSeed – Seed – Series A', steps: ['grant', 'preseed', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
     { rank: 5, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '7 Months' },
+    { rank: 6, name: 'PreSeed – Grant – Seed – Series A', steps: ['preseed', 'grant', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'PreSeed – PreSeed – Series A', steps: ['preseed', 'preseed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 8, name: 'Grant – PreSeed – PreSeed – Seed', steps: ['grant', 'preseed', 'preseed', 'seed'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 9, name: 'PreSeed – Seed – Grant – Series A', steps: ['preseed', 'seed', 'grant', 'series-a'], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 10, name: 'PreSeed – Seed – Series A – Series A', steps: ['preseed', 'seed', 'series-a', 'series-a'], medianFirst: '3 Months', medianBetween: '6 Months' },
   ],
   'Seed-only': [
     { rank: 1, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
@@ -172,6 +187,11 @@ const narrativePathsData = {
     { rank: 3, name: 'Seed – Seed – Seed – Series A', steps: ['seed', 'seed', 'seed', 'series-a'], medianFirst: '4 Months', medianBetween: '4 Months' },
     { rank: 4, name: 'Seed – PreSeed – Series A', steps: ['seed', 'preseed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
     { rank: 5, name: 'PreSeed – Seed – Seed – Series A', steps: ['preseed', 'seed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 6, name: 'Seed – Grant – Series A', steps: ['seed', 'grant', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Seed – Seed – Series A – Series A', steps: ['seed', 'seed', 'series-a', 'series-a'], medianFirst: '4 Months', medianBetween: '6 Months' },
+    { rank: 8, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 9, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '5 Months', medianBetween: '7 Months' },
+    { rank: 10, name: 'Seed – Seed – Grant – Series A', steps: ['seed', 'seed', 'grant', 'series-a'], medianFirst: '4 Months', medianBetween: '4 Months' },
   ],
   'Fast track to Series A': [
     { rank: 1, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
@@ -179,6 +199,75 @@ const narrativePathsData = {
     { rank: 3, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
     { rank: 4, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
     { rank: 5, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 6, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '8 Months' },
+    { rank: 7, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '2 Months', medianBetween: '7 Months' },
+    { rank: 8, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 9, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 10, name: 'Series A', steps: ['series-a', null, null, null], medianFirst: '5 Months', medianBetween: '0 Months' },
+  ],
+};
+
+/* ── Diverse Paths Data (Not guaranteed to end in Series A) ── */
+const diversePathsData = {
+  'General Overview': [
+    { rank: 1, name: 'Grant – PreSeed – Seed', steps: ['grant', 'preseed', 'seed', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 2, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 3, name: 'Grant – Grant', steps: ['grant', 'grant', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 4, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 5, name: 'PreSeed – PreSeed', steps: ['preseed', 'preseed', null, null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 6, name: 'Grant – Seed', steps: ['grant', 'seed', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'PreSeed – Seed', steps: ['preseed', 'seed', null, null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'Seed – Seed', steps: ['seed', 'seed', null, null], medianFirst: '4 Months', medianBetween: '6 Months' },
+    { rank: 9, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 10, name: 'Grant', steps: ['grant', null, null, null], medianFirst: '2 Months', medianBetween: '0 Months' },
+  ],
+  'Grant-Focus': [
+    { rank: 1, name: 'Grant – Grant – PreSeed', steps: ['grant', 'grant', 'preseed', null], medianFirst: '2 Months', medianBetween: '3 Months' },
+    { rank: 2, name: 'Grant – Grant', steps: ['grant', 'grant', null, null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 3, name: 'Grant – Seed – Grant', steps: ['grant', 'seed', 'grant', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 4, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 5, name: 'Grant – PreSeed – PreSeed', steps: ['grant', 'preseed', 'preseed', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 6, name: 'Grant', steps: ['grant', null, null, null], medianFirst: '2 Months', medianBetween: '0 Months' },
+    { rank: 7, name: 'Grant – Seed', steps: ['grant', 'seed', null, null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'Grant – Grant – Seed', steps: ['grant', 'grant', 'seed', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 9, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 10, name: 'Grant – Grant – Grant', steps: ['grant', 'grant', 'grant', null], medianFirst: '2 Months', medianBetween: '3 Months' },
+  ],
+  'PreSeed to Seed': [
+    { rank: 1, name: 'PreSeed – Seed', steps: ['preseed', 'seed', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 2, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 3, name: 'PreSeed – PreSeed – Seed', steps: ['preseed', 'preseed', 'seed', null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 4, name: 'Grant – PreSeed – Seed', steps: ['grant', 'preseed', 'seed', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 5, name: 'PreSeed – Grant – Seed', steps: ['preseed', 'grant', 'seed', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 6, name: 'PreSeed – PreSeed', steps: ['preseed', 'preseed', null, null], medianFirst: '4 Months', medianBetween: '4 Months' },
+    { rank: 7, name: 'PreSeed', steps: ['preseed', null, null, null], medianFirst: '3 Months', medianBetween: '0 Months' },
+    { rank: 8, name: 'Grant – PreSeed – PreSeed – Seed', steps: ['grant', 'preseed', 'preseed', 'seed'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 9, name: 'PreSeed – Seed – Seed', steps: ['preseed', 'seed', 'seed', null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 10, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '7 Months' },
+  ],
+  'Seed-only': [
+    { rank: 1, name: 'Seed – Seed', steps: ['seed', 'seed', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 2, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '6 Months' },
+    { rank: 3, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '4 Months', medianBetween: '6 Months' },
+    { rank: 4, name: 'Seed – PreSeed', steps: ['seed', 'preseed', null, null], medianFirst: '4 Months', medianBetween: '4 Months' },
+    { rank: 5, name: 'Seed', steps: ['seed', null, null, null], medianFirst: '4 Months', medianBetween: '0 Months' },
+    { rank: 6, name: 'PreSeed – Seed', steps: ['preseed', 'seed', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Seed – Seed – Seed', steps: ['seed', 'seed', 'seed', null], medianFirst: '4 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'Seed – Grant', steps: ['seed', 'grant', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 9, name: 'Grant – Seed', steps: ['grant', 'seed', null, null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 10, name: 'Seed – Seed – Grant', steps: ['seed', 'seed', 'grant', null], medianFirst: '4 Months', medianBetween: '4 Months' },
+  ],
+  'Fast track to Series A': [
+    { rank: 1, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 2, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 3, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 4, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 5, name: 'Series A', steps: ['series-a', null, null, null], medianFirst: '5 Months', medianBetween: '0 Months' },
+    { rank: 6, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 7, name: 'PreSeed – Grant – Series A', steps: ['preseed', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 8, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '8 Months' },
+    { rank: 9, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 10, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '2 Months', medianBetween: '7 Months' },
   ],
 };
 
@@ -196,6 +285,15 @@ function getColor(id) {
 }
 
 /* ───── Render ───── */
+function getActivePathsData() {
+  const currentPathsFilter = document.getElementById('tp-pfb-paths')?.value || 'Secured Series A';
+  // Also check hero filter if pfb hasn't been mounted/synced yet
+  if (currentPathsFilter === 'All Paths' || document.getElementById('tp-hero-paths')?.value === 'All Paths') {
+    return diversePathsData;
+  }
+  return narrativePathsData;
+}
+
 export function renderTypicalPaths(container) {
   let selectedPathIdx = null;
   let currentNarrative = 'General Overview';
@@ -302,13 +400,15 @@ export function renderTypicalPaths(container) {
       <!-- Grid: chart left, paths right -->
       <div class="journey-step">
         <div class="tp-grid">
-          <div class="tp-chart-container">
-            <div class="tp-chart-title">Distribution of first 4 financing Instruments:</div>
-            <div class="legend" id="tp-legend"></div>
-            <div class="tp-chart" id="tp-chart"></div>
+          <div class="tp-chart-wrapper" style="display:flex; flex-direction:column; gap: var(--sp-3);">
+            <div class="tp-chart-title" style="margin-bottom: 0;">Path Distribution <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); white-space: nowrap;">(for the first 4 instruments)</span></div>
+            <div class="tp-chart-container" style="margin-top: -4px;">
+              <div class="legend" id="tp-legend"></div>
+              <div class="tp-chart" id="tp-chart"></div>
+            </div>
           </div>
           <div class="tp-paths-container">
-            <div class="tp-paths-title">Most Common Paths:</div>
+            <div class="tp-paths-title">Most Common Paths: <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); white-space: nowrap;">(# startups choosing that path)</span></div>
             <div class="tp-paths-list" id="tp-paths-list"></div>
           </div>
         </div>
@@ -317,15 +417,24 @@ export function renderTypicalPaths(container) {
       <!-- Stats row -->
       <div class="journey-step">
         <div class="tp-stats-row">
-          <div class="stat-card tp-stat-card">
-            <div class="stat-icon tp-stat-icon">🚀</div>
+          <div class="stat-card tp-stat-card" id="tp-stat-card-first">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+              </svg>
+            </div>
             <div>
               <div class="stat-label">Median Time to first Round:</div>
               <div class="stat-value" id="tp-stat-first">${narrativeStats[currentNarrative].medianFirst}</div>
             </div>
           </div>
-          <div class="stat-card tp-stat-card">
-            <div class="stat-icon tp-stat-icon">⏱️</div>
+          <div class="stat-card tp-stat-card" id="tp-stat-card-between">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
             <div>
               <div class="stat-label">Median Time between Rounds:</div>
               <div class="stat-value" id="tp-stat-between">${narrativeStats[currentNarrative].medianBetween}</div>
@@ -491,15 +600,19 @@ export function renderTypicalPaths(container) {
   /* ── Paths list builder ── */
   function buildPaths() {
     const pathsList = document.getElementById('tp-paths-list');
-    const pathsData = narrativePathsData[currentNarrative] || narrativePathsData['General Overview'];
+    const activeData = getActivePathsData();
+    const pathsData = activeData[currentNarrative] || activeData['General Overview'];
+
+    const mockCounts = [142, 98, 74, 56, 34, 28, 21, 15, 9, 4];
 
     pathsData.forEach((path, idx) => {
+      const count = mockCounts[idx] || 0;
       const cardEl = document.createElement('div');
       cardEl.className = 'tp-path-card';
       cardEl.id = `tp-path-${idx}`;
       cardEl.innerHTML = `
         <div class="tp-rank">${path.rank}</div>
-        <div class="tp-path-name">${path.name}</div>
+        <div class="tp-path-name">${path.name} <span style="color: var(--text-muted); font-weight: 400;">(${count})</span></div>
         <button class="tp-path-detail-btn">Details</button>
       `;
       cardEl.addEventListener('click', () => selectPath(idx));
@@ -511,7 +624,8 @@ export function renderTypicalPaths(container) {
   function selectPath(idx) {
     if (selectedPathIdx === idx) { deselectPath(); return; }
     selectedPathIdx = idx;
-    const pathsData = narrativePathsData[currentNarrative] || narrativePathsData['General Overview'];
+    const activeData = getActivePathsData();
+    const pathsData = activeData[currentNarrative] || activeData['General Overview'];
     const path = pathsData[idx];
 
     document.querySelectorAll('.tp-path-card').forEach((c, ci) => c.classList.toggle('selected', ci === idx));
@@ -524,15 +638,22 @@ export function renderTypicalPaths(container) {
     });
     updateStats(path.medianFirst, path.medianBetween);
 
+    // Highlight stat cards
+    document.querySelectorAll('.tp-stat-card').forEach(c => c.classList.add('active'));
+
     // AI Expert evaluates the path
     handlePathSelection(path.name, Math.floor(Math.random() * 20) + 10); // Mock series A rate
   }
 
   function deselectPath() {
     selectedPathIdx = null;
+    const activeData = getActivePathsData();
+    // Re-grab stats from the original path logic or narrativeStats based on your design choice. 
+    // Here we revert to the default narrative stats for the current narrative.
     const stats = narrativeStats[currentNarrative] || narrativeStats['General Overview'];
     document.querySelectorAll('.tp-path-card').forEach(c => c.classList.remove('selected'));
     document.querySelectorAll('.tp-bar-segment').forEach(s => s.classList.remove('highlighted', 'dimmed'));
+    document.querySelectorAll('.tp-stat-card').forEach(c => c.classList.remove('active'));
     updateStats(stats.medianFirst, stats.medianBetween);
   }
 

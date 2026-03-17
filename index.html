@@ -115,49 +115,112 @@
         <main class="content-area" role="tabpanel">
           <div id="tab-content" class="tab-content"></div>
         </main>
+      </div>
 
-        <aside class="coach-panel">
-          <div class="coach-inner">
-            <div class="coach-header">
-              <div class="coach-avatar">
-                <div class="avatar-ring"></div>
-                <img src="/jessica-avatar.png" alt="Jessica" class="avatar-img" />
-              </div>
-              <div class="coach-info">
-                <h3 class="coach-name">Jessica</h3>
-                <span class="coach-title">Incubator Coach</span>
-              </div>
-              <div class="coach-status">
-                <span class="status-dot"></span>
-                Online
-              </div>
+      <!-- App Footer -->
+      <footer class="app-footer">
+        <div class="footer-top">
+          <div class="footer-logo-col">
+            <div class="logo">
+              <span class="logo-text" style="color: var(--text-primary); font-weight: 500;">VentureGuide</span>
             </div>
-            <div class="coach-messages" id="coach-messages">
-              <div class="coach-bubble ai-bubble">
-                <div class="ai-bubble-content">
-                  <img src="/jessica-avatar.png" class="ai-avatar" alt="Jessica" />
-                  <div class="ai-bubble-text">
-                    <p id="coach-text">Hi! I am Jessica, your personal Incubator Co-Pilot. I rely on a dataset of over
-                      100,000 funding sequences of your peers to help you benchmark your timing,
-                      investors, and probabilities.<br /><br />I am here to guide you, but feel free to ask me questions
-                      at any time.</p>
-                    <span class="bubble-time">Just now</span>
-                  </div>
+            <p class="footer-tagline">Data-driven funding journeys</p>
+          </div>
+
+          <div class="footer-links">
+            <div class="footer-link-col">
+              <a href="#">About</a>
+              <a href="#">Features</a>
+              <a href="#">Pricing</a>
+              <a href="#">Contact</a>
+              <a href="#">Blog</a>
+            </div>
+            <div class="footer-link-col">
+              <a href="#">Documentation</a>
+              <a href="#">FAQ</a>
+              <a href="#">Support</a>
+            </div>
+            <div class="footer-link-col">
+              <a href="#">LinkedIn</a>
+              <a href="#">YouTube</a>
+            </div>
+          </div>
+        </div>
+
+        <div class="footer-bottom">
+          <div class="footer-status">
+            <div class="status-indicator">
+              <span class="status-dot-green"></span>
+              <span>All systems operational</span>
+            </div>
+          </div>
+
+          <div class="footer-legal">
+            <span>© 2026 VentureGuide. All rights reserved</span>
+            <a href="#">Privacy Policy</a>
+            <a href="#">Terms of Use</a>
+          </div>
+        </div>
+      </footer>
+
+      <!-- Floating Avatar FAB (always visible when chat is closed) -->
+      <div class="coach-fab" id="coach-fab">
+        <div class="coach-fab-ring"></div>
+        <img src="/jessica-avatar.png" alt="Jessica" class="coach-fab-img" />
+      </div>
+
+      <!-- Speech Bubble (pops up above FAB for latest message) -->
+      <div class="coach-speech-bubble hidden" id="coach-speech-bubble">
+        <button class="coach-speech-close" id="coach-speech-close">&times;</button>
+        <p class="coach-speech-text" id="coach-speech-text"></p>
+      </div>
+
+      <!-- Coach Panel (now a fixed overlay, hidden by default) -->
+      <aside class="coach-panel" id="coach-panel-aside">
+        <div class="coach-inner">
+          <div class="coach-header">
+            <div class="coach-avatar">
+              <div class="avatar-ring"></div>
+              <img src="/jessica-avatar.png" alt="Jessica" class="avatar-img" />
+            </div>
+            <div class="coach-info">
+              <h3 class="coach-name">Jessica</h3>
+              <span class="coach-title">Incubator Coach</span>
+            </div>
+            <div class="coach-status">
+              <span class="status-dot"></span>
+              Online
+            </div>
+            <button class="coach-panel-close" id="coach-panel-close">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
+                stroke-linecap="round">
+                <path d="M18 6L6 18" />
+                <path d="M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <div class="coach-messages" id="coach-messages">
+            <div class="coach-bubble ai-bubble">
+              <div class="ai-bubble-content">
+                <img src="/jessica-avatar.png" class="ai-avatar" alt="Jessica" />
+                <div class="ai-bubble-text">
+                  <p id="coach-text">Hi! I'm Jessica, your personal Incubator Co-Pilot. 👋<br/><br/>My recommendations are based on over <strong>100,000 funding sequences since 2020</strong> from founders just like you.<br/><br/>Here's what you can explore:<br/><ul><li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li><li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li><li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li><li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border investment</li></ul><br/>Feel free to ask me anything — I'll point you to the right tab! 🚀<br/><br/><strong>What is your name?</strong></p>
+                  <span class="bubble-time">Just now</span>
                 </div>
               </div>
             </div>
-            <div class="coach-input-area">
-              <input type="text" class="coach-input" placeholder="Enter your message..." disabled />
-              <button class="coach-send" disabled>
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                  <path d="M22 2L11 13" />
-                  <path d="M22 2L15 22L11 13L2 9L22 2Z" />
-                </svg>
-              </button>
-            </div>
           </div>
-        </aside>
-      </div>
+          <div class="coach-input-area">
+            <input type="text" class="coach-input" id="coach-input" placeholder="Ask Jessica anything..." />
+            <button class="coach-send" id="coach-send">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M22 2L11 13" />
+                <path d="M22 2L15 22L11 13L2 9L22 2Z" />
+              </svg>
+            </button>
+          </div>
+        </div>
+      </aside>
     </section>
   </div>
 
