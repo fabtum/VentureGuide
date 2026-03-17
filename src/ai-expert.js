@@ -18,7 +18,7 @@ let currentTabId = 'typical-paths';
 let isPanelOpen = false;
 
 // --- Gemini API ---
-const GEMINI_API_KEY = 'AIzaSyDdqKWqPpKTshwFp5XMEHWMXC0V0oSbn6Y';
+const GEMINI_API_KEY = 'xxx';
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // Keep conversation history for contextual replies
