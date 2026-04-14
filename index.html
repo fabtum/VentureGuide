@@ -38,6 +38,56 @@
             Built on a comprehensive study by <strong>Technical University of Munich (TUM)</strong> and <strong>Carnegie
               Mellon University (CMU)</strong> — every recommendation is grounded in real funding data.
           </p>
+          <!-- Global Filters (mandatory before entering) -->
+          <div class="landing-filters" id="landing-filters">
+            <div class="landing-filter-group" style="position: relative;">
+              <div id="landing-country-val"
+                style="display:none; color: #d946ef; font-size: 12px; position: absolute; top: -18px; left: 0; align-items: center; gap: 4px; white-space: nowrap;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg> Mandatory field
+              </div>
+              <label class="landing-filter-label">Organisation Location:</label>
+              <select class="landing-filter-select" id="landing-country">
+                <option value="" disabled selected>Choose Location</option>
+                <option>Austria</option>
+                <option>China</option>
+                <option>Finland</option>
+                <option>France</option>
+                <option>Germany</option>
+                <option>India</option>
+                <option>Switzerland</option>
+                <option>United Kingdom</option>
+                <option>United States</option>
+              </select>
+            </div>
+            <div class="landing-filter-group" style="position: relative;">
+              <div id="landing-industry-val"
+                style="display:none; color: #d946ef; font-size: 12px; position: absolute; top: -18px; left: 0; align-items: center; gap: 4px; white-space: nowrap;">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#d946ef" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg> Mandatory field
+              </div>
+              <label class="landing-filter-label">Industry:</label>
+              <select class="landing-filter-select" id="landing-industry">
+                <option value="" disabled selected>Choose Industry</option>
+                <option>Consumer Goods</option>
+                <option>Energy / Resources</option>
+                <option>Finance / Consulting</option>
+                <option>Health / Biotechnology</option>
+                <option>Media / Entertainment</option>
+                <option>Mobility / Infrastructure</option>
+                <option>Tech / Software</option>
+              </select>
+            </div>
+          </div>
+
           <button class="landing-cta" id="landing-enter-btn">
             <span>Enter VentureGuide</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"
@@ -55,13 +105,13 @@
           </div>
           <div class="landing-stat-divider"></div>
           <div class="landing-stat">
-            <div class="landing-stat-value">2020</div>
-            <div class="landing-stat-label">Dataset<br />Baseline Year</div>
+            <div class="landing-stat-value">2020-2025</div>
+            <div class="landing-stat-label">Dataset<br />Time Period</div>
           </div>
           <div class="landing-stat-divider"></div>
           <div class="landing-stat">
-            <div class="landing-stat-value">5</div>
-            <div class="landing-stat-label">Funding Instrument<br />Categories</div>
+            <div class="landing-stat-value">4</div>
+            <div class="landing-stat-label">Funding Type<br />Categories</div>
           </div>
         </div>
 
@@ -86,7 +136,7 @@
     <!-- ===== APP SHELL (hidden until Enter is clicked) ===== -->
     <section class="app-shell hidden" id="app-shell">
       <header class="top-bar">
-        <div class="logo">
+        <div class="logo" style="cursor: pointer;" onclick="window.location.reload()">
           <span class="logo-icon">
             <svg width="24" height="24" viewBox="0 0 28 28" fill="none">
               <path d="M14 2L26 8V20L14 26L2 20V8L14 2Z" fill="url(#logo-grad2)" stroke="rgba(79,70,229,0.3)"
@@ -102,14 +152,96 @@
           </span>
           <span class="logo-text">VentureGuide</span>
         </div>
+        <button class="funding-types-btn" id="funding-types-btn">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle>
+            <line x1="12" y1="16" x2="12" y2="12"></line>
+            <line x1="12" y1="8" x2="12.01" y2="8"></line>
+          </svg>
+          Funding Types?
+        </button>
         <nav class="tab-nav" role="tablist">
-          <button class="tab-btn active" role="tab" data-tab="typical-paths" aria-selected="true">Typical Paths</button>
-          <button class="tab-btn" role="tab" data-tab="path-simulator" aria-selected="false">Path Simulator</button>
+          <button class="tab-btn active" role="tab" data-tab="path-simulator" aria-selected="true">Funding Type Distribution</button>
+          <button class="tab-btn" role="tab" data-tab="typical-paths" aria-selected="false">Most Common Paths</button>
           <button class="tab-btn" role="tab" data-tab="key-investors" aria-selected="false">Typical Investors</button>
-          <button class="tab-btn" role="tab" data-tab="intl-capital" aria-selected="false">International
-            Capital</button>
+          <button class="tab-btn" role="tab" data-tab="intl-capital" aria-selected="false">International Capital</button>
         </nav>
       </header>
+
+      <!-- Funding Types Modal -->
+      <div class="ft-modal-overlay hidden" id="ft-modal-overlay">
+        <div class="ft-modal">
+          <button class="ft-modal-close" id="ft-modal-close">&times;</button>
+          <div class="ft-modal-header">
+            <img src="/jessica-avatar.png" alt="Jessica" class="ft-modal-avatar" />
+            <div class="ft-modal-greeting">
+              <p></p>
+              <p>Hi! I'm <strong>Jessica</strong>, your personal Incubator Co-Pilot. 👋</p>
+              <p>This tool covers the following funding types:</p>
+            </div>
+          </div>
+          <div class="ft-modal-cards">
+            <div class="ft-card">
+              <div class="ft-card-icon" style="background: var(--color-preseed);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path
+                    d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83" />
+                </svg>
+              </div>
+              <div class="ft-card-body">
+                <div class="ft-card-title">Pre-Seed</div>
+                <div class="ft-card-desc">Pre-institutional seed round that either has no institutional investors or is
+                  a very low amount — mainly angel investors.</div>
+              </div>
+            </div>
+            <div class="ft-card">
+              <div class="ft-card-icon" style="background: var(--color-seed);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+                </svg>
+              </div>
+              <div class="ft-card-body">
+                <div class="ft-card-title">Seed</div>
+                <div class="ft-card-desc">Mix of Angels and VCs. Angels form syndicates, Micro-VCs step in, and more
+                  traditional VCs are launching dedicated seed funds.</div>
+              </div>
+            </div>
+            <div class="ft-card">
+              <div class="ft-card-icon" style="background: var(--color-series-a);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z" />
+                </svg>
+              </div>
+              <div class="ft-card-body">
+                <div class="ft-card-title">Series A</div>
+                <div class="ft-card-desc">Deal volume is almost 100% dominated by institutional venture capital.</div>
+              </div>
+            </div>
+            <div class="ft-card">
+              <div class="ft-card-icon" style="background: var(--color-grant);">
+                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2"
+                  stroke-linecap="round" stroke-linejoin="round">
+                  <rect x="2" y="7" width="20" height="14" rx="2" ry="2" />
+                  <path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16" />
+                </svg>
+              </div>
+              <div class="ft-card-body">
+                <div class="ft-card-title">Grants</div>
+                <div class="ft-card-desc">Includes grants and non-equity assistance — non-dilutive funding available at
+                  all stages.</div>
+              </div>
+            </div>
+          </div>
+          <div class="ft-modal-footer">
+            <p class="ft-modal-hint">If you have further questions, feel free to ask me in our chat!</p>
+            <button class="ft-modal-cta" id="ft-modal-got-it">Got it</button>
+          </div>
+        </div>
+      </div>
 
       <div class="main-layout">
         <main class="content-area" role="tabpanel">
@@ -125,6 +257,12 @@
               <span class="logo-text" style="color: var(--text-primary); font-weight: 500;">VentureGuide</span>
             </div>
             <p class="footer-tagline">Data-driven funding journeys</p>
+
+            <div class="footer-partners">
+              <img src="/logos/tum_new.png" alt="TUM Logo" class="footer-partner-logo" id="f-tum">
+              <img src="/logos/unternehmertum.png" alt="UnternehmerTUM Logo" class="footer-partner-logo" id="f-utum">
+              <img src="/logos/cmu_new.png" alt="CMU Logo" class="footer-partner-logo" id="f-cmu">
+            </div>
           </div>
 
           <div class="footer-links">
@@ -204,7 +342,15 @@
               <div class="ai-bubble-content">
                 <img src="/jessica-avatar.png" class="ai-avatar" alt="Jessica" />
                 <div class="ai-bubble-text">
-                  <p id="coach-text">Hi! I'm Jessica, your personal Incubator Co-Pilot. 👋<br/><br/>My recommendations are based on over <strong>100,000 funding sequences since 2020</strong> from founders just like you.<br/><br/>Here's what you can explore:<br/><ul><li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li><li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li><li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li><li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border investment</li></ul><br/>Feel free to ask me anything — I'll point you to the right tab! 🚀<br/><br/><strong>What is your name?</strong></p>
+                  <p id="coach-text">Here's what you can explore:<br />
+                  <ul>
+                    <li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li>
+                    <li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li>
+                    <li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li>
+                    <li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border
+                      investment</li>
+                  </ul><br />Feel free to ask me anything — I'll point you to the right tab! 🚀<br /><br /><strong>What
+                    is your name?</strong></p>
                   <span class="bubble-time">Just now</span>
                 </div>
               </div>

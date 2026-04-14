@@ -4,12 +4,14 @@ import { renderTypicalPaths } from './tabs/typical-paths.js';
 import { renderPathSimulator } from './tabs/path-simulator.js';
 import { renderKeyInvestors } from './tabs/key-investors.js';
 import { renderIntlCapital } from './tabs/intl-capital.js';
+import { setGlobalFilters } from './global-filters.js';
 
 import { initAIExpert, handleTabSwitch, triggerWelcomeMessage } from './ai-expert.js';
+import { updateContext } from './ai-expert.js';
 
 /* Tab ordering for directional slides */
-const tabOrder = ['typical-paths', 'path-simulator', 'key-investors', 'intl-capital'];
-let currentTab = 'typical-paths';
+const tabOrder = ['path-simulator', 'typical-paths', 'key-investors', 'intl-capital'];
+let currentTab = 'path-simulator';
 
 const tabRenderers = {
   'typical-paths': renderTypicalPaths,
@@ -77,8 +79,47 @@ document.addEventListener('DOMContentLoaded', () => {
   const appShell = document.getElementById('app-shell');
   const enterBtn = document.getElementById('landing-enter-btn');
 
-  // Landing → App: tunnel zoom transition
+  // Landing → App: tunnel zoom transition with validation
   enterBtn.addEventListener('click', () => {
+    const countrySel = document.getElementById('landing-country');
+    const countryValEl = document.getElementById('landing-country-val');
+    const industrySel = document.getElementById('landing-industry');
+    const industryValEl = document.getElementById('landing-industry-val');
+
+    let isValid = true;
+
+    if (!countrySel.value) {
+      countrySel.style.transition = 'outline 0.2s';
+      countrySel.style.outline = '2px solid #d946ef';
+      if (countryValEl) countryValEl.style.display = 'flex';
+      isValid = false;
+      setTimeout(() => {
+        countrySel.style.outline = 'none';
+        if (countryValEl) countryValEl.style.display = 'none';
+      }, 3000);
+    }
+
+    if (!industrySel.value) {
+      industrySel.style.transition = 'outline 0.2s';
+      industrySel.style.outline = '2px solid #d946ef';
+      if (industryValEl) industryValEl.style.display = 'flex';
+      isValid = false;
+      setTimeout(() => {
+        industrySel.style.outline = 'none';
+        if (industryValEl) industryValEl.style.display = 'none';
+      }, 3000);
+    }
+
+    if (!isValid) return;
+
+    // Set global filters
+    setGlobalFilters({
+      location: countrySel.value,
+      industry: industrySel.value,
+    });
+    updateContext('country', countrySel.value);
+    updateContext('industry', industrySel.value);
+
     landingPage.classList.add('tunnel-out');
 
     setTimeout(() => {
@@ -88,7 +129,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Render first tab
       const contentEl = document.getElementById('tab-content');
-      renderTypicalPaths(contentEl);
+      renderPathSimulator(contentEl);
 
       // Tab nav
       document.querySelectorAll('.tab-btn').forEach(btn => {
@@ -98,9 +139,36 @@ document.addEventListener('DOMContentLoaded', () => {
       // Clean up
       setTimeout(() => {
         appShell.classList.remove('tunnel-in');
-        // Trigger Jessica's welcome message after the transition
-        triggerWelcomeMessage();
+        // Show Funding Types modal after entering
+        showFundingTypesModal();
       }, 900);
     }, 800);
+  });
+
+  // ── Funding Types Modal ──
+  const ftOverlay = document.getElementById('ft-modal-overlay');
+  const ftCloseBtn = document.getElementById('ft-modal-close');
+  const ftGotItBtn = document.getElementById('ft-modal-got-it');
+  const ftOpenBtn = document.getElementById('funding-types-btn');
+
+  function showFundingTypesModal() {
+    ftOverlay.classList.remove('hidden');
+  }
+
+  function hideFundingTypesModal() {
+    ftOverlay.classList.add('hidden');
+    // Trigger Jessica's welcome message after the modal is dismissed
+    triggerWelcomeMessage();
+  }
+
+  ftCloseBtn.addEventListener('click', hideFundingTypesModal);
+  ftGotItBtn.addEventListener('click', hideFundingTypesModal);
+  ftOverlay.addEventListener('click', (e) => {
+    if (e.target === ftOverlay) hideFundingTypesModal();
+  });
+
+  // Reopen from navbar button
+  ftOpenBtn.addEventListener('click', () => {
+    ftOverlay.classList.remove('hidden');
   });
 });

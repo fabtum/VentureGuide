@@ -1,131 +1,107 @@
 import { journeyReveal } from '../main.js';
-import { handleProbabilityChange, updateContext } from '../ai-expert.js';
+import { getGlobalFilters, setGlobalFilters } from '../global-filters.js';
 
-/* ── Instrument channels with median months ── */
-const channels = [
-  { id: 'preseed', label: 'Pre-Seed', color: 'var(--color-preseed)', weight: 19, medianMonths: 3 },
-  { id: 'seed', label: 'Seed', color: 'var(--color-seed)', weight: 9, medianMonths: 6 },
-  { id: 'series', label: 'Series A', color: 'var(--color-series-a)', weight: 7, medianMonths: 12 },
-  { id: 'grant', label: 'Grant', color: 'var(--color-grant)', weight: 29, medianMonths: 2 },
-];
-
-/* ── Bucket data: fill %, top investors ── */
-const bucketData = [
-  {
-    id: 'preseed', label: 'Pre-Seed', fill: 38, medianTime: '3 mo',
-    color: 'var(--color-preseed)', rawColor: '#818CF8',
-    investors: [
-      { name: 'Speedinvest', deals: 34 },
-      { name: 'Cherry Ventures', deals: 28 },
-      { name: 'Antler', deals: 22 },
-      { name: 'Plug and Play', deals: 19 },
-      { name: 'High-Tech Gründerfonds', deals: 17 },
-    ]
-  },
-  {
-    id: 'seed', label: 'Seed', fill: 32, medianTime: '6 mo',
-    color: 'var(--color-seed)', rawColor: '#F59E0B',
-    investors: [
-      { name: 'Earlybird', deals: 41 },
-      { name: 'Point Nine Capital', deals: 35 },
-      { name: 'HV Capital', deals: 29 },
-      { name: 'Creandum', deals: 24 },
-      { name: 'La Famiglia', deals: 18 },
-    ]
-  },
-  {
-    id: 'series', label: 'Series A', fill: 21, medianTime: '12 mo',
-    color: 'var(--color-series-a)', rawColor: '#F43F5E',
-    investors: [
-      { name: 'Insight Partners', deals: 52 },
-      { name: 'Index Ventures', deals: 44 },
-      { name: 'Balderton Capital', deals: 38 },
-      { name: 'General Catalyst', deals: 31 },
-      { name: 'Atomico', deals: 26 },
-    ]
-  },
-  {
-    id: 'grant', label: 'Grant', fill: 9, medianTime: '2 mo',
-    color: 'var(--color-grant)', rawColor: '#10B981',
-    investors: [
-      { name: 'EXIST', deals: 67 },
-      { name: 'HTGF Grant', deals: 54 },
-      { name: 'EU Horizon', deals: 41 },
-      { name: 'BMBF Förderprogramm', deals: 33 },
-      { name: 'KfW', deals: 28 },
-    ]
-  },
-];
-
-/* ── Probability calculation ── */
-function calcProbability(channelStates) {
-  let total = 0;
-  channelStates.forEach((state, i) => {
-    if (!state.active) return;
-    const base = channels[i].weight;
-    const decay = Math.max(0.25, 1 - (state.months / 80));
-    total += base * decay;
-  });
-  return Math.min(95, Math.round(total));
+/* ── Seeded Random Generator ── */
+function getSeededRandom(seedStr) {
+  let h = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+      h = Math.imul(31, h) + seedStr.charCodeAt(i) | 0;
+  }
+  return function() {
+      h = Math.imul(h ^ (h >>> 16), 2246822507);
+      h = Math.imul(h ^ (h >>> 13), 3266489909);
+      return (h ^= h >>> 16) >>> 0;
+  };
 }
 
 /* ───── Render ───── */
 export function renderIntlCapital(container) {
-  const channelStates = channels.map(() => ({ active: false, months: 0 }));
+  const filters = getGlobalFilters();
+  const allLocations = ['Austria', 'China', 'Finland', 'France', 'Germany', 'India', 'Switzerland', 'United Kingdom', 'United States'];
 
-  container.innerHTML = `
-    <!-- PHASE 1: Hero Intro -->
-    <div class="tab-intro" id="ic-intro">
-      <div class="journey-step">
-        <div class="tab-intro-content">
-          <h1 class="tab-intro-headline">
-            Increase your chance of getting<br/><strong>international capital</strong> by sending<br/>the right signals.
-          </h1>
-        </div>
-      </div>
+  // Seed for both Domestic (Overlapping) and Intl (Pie)
+  const seedStr = filters.location + filters.industry + (filters.investorLocation || '');
+  const rand = getSeededRandom(seedStr);
 
-      <div class="journey-step">
-        <div class="tab-intro-filters">
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Organisation Location:</label>
-            <select class="hero-filter-select" id="ic-hero-country">
-              <option>Germany</option><option>Finland</option><option>Austria</option><option>Switzerland</option><option>France</option>
-            </select>
-          </div>
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Industry:</label>
-            <select class="hero-filter-select" id="ic-hero-industry">
-              <option>Tech / Software</option><option>Consumer Goods</option><option>Energy / Resources</option><option>Mobility / Infrastructure</option><option>Health / Biotechnology</option>
-            </select>
-          </div>
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Investor Location:</label>
-            <select class="hero-filter-select" id="ic-hero-investor-loc">
-              <option>USA</option><option>China</option><option>India</option><option>UK</option><option>Japan</option>
-            </select>
-          </div>
-        </div>
-      </div>
+  const bucketData = [
+    { 
+      id: 'nothing', label: 'Nothing', 
+      fill: Math.floor(40 + (rand() % 21)), rawColor: '#9CA3AF'
+    },
+    { 
+      id: 'preseed', label: 'Pre-Seed', medianTime: '3 mo',
+      fill: Math.floor(10 + (rand() % 30)), rawColor: '#818CF8',
+      investors: [
+        { name: 'Speedinvest', deals: 34 },
+        { name: 'Cherry Ventures', deals: 28 },
+        { name: 'Antler', deals: 22 },
+        { name: 'Plug and Play', deals: 19 },
+        { name: 'High-Tech Gründerfonds', deals: 17 }
+      ]
+    },
+    { 
+      id: 'seed', label: 'Seed', medianTime: '6 mo',
+      fill: Math.floor(5 + (rand() % 30)), rawColor: '#F59E0B',
+      investors: [
+        { name: 'Earlybird', deals: 41 },
+        { name: 'Point Nine Capital', deals: 35 },
+        { name: 'HV Capital', deals: 29 },
+        { name: 'Creandum', deals: 24 },
+        { name: 'La Famiglia', deals: 18 }
+      ]
+    },
+    { 
+      id: 'series', label: 'Series A', medianTime: '12 mo',
+      fill: Math.floor(1 + (rand() % 20)), rawColor: '#F43F5E',
+      investors: [
+        { name: 'Insight Partners', deals: 52 },
+        { name: 'Index Ventures', deals: 44 },
+        { name: 'Balderton Capital', deals: 38 },
+        { name: 'General Catalyst', deals: 31 },
+        { name: 'Atomico', deals: 26 }
+      ]
+    },
+    { 
+      id: 'grant', label: 'Grants', medianTime: '2 mo',
+      fill: Math.floor(10 + (rand() % 30)), rawColor: '#10B981',
+      investors: [
+        { name: 'EXIST', deals: 67 },
+        { name: 'HTGF Grant', deals: 54 },
+        { name: 'EU Horizon', deals: 41 },
+        { name: 'BMBF Förderprogramm', deals: 33 },
+        { name: 'KfW', deals: 28 }
+      ]
+    }
+  ];
 
-      <div class="journey-step">
-        <button class="hero-cta" id="ic-start-btn">
-          <span>Get international capital…</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
+  const pieBase = [
+    { id: 'preseed', w: Math.floor(20 + rand() % 20) },
+    { id: 'seed', w: Math.floor(15 + rand() % 25) },
+    { id: 'series', w: Math.floor(10 + rand() % 15) },
+    { id: 'grant', w: Math.floor(5 + rand() % 15) }
+  ];
+  const pieTotalW = pieBase.reduce((s, x) => s + x.w, 0);
+  const pieData = pieBase.map(slice => {
+    const p = Math.round((slice.w / pieTotalW) * 100);
+    const bucketRef = bucketData.find(b => b.id === slice.id);
+    return { ...bucketRef, pct: p };
+  });
+  const piePctSum = pieData.reduce((s, x) => s + x.pct, 0);
+  if (piePctSum !== 100) pieData[0].pct += (100 - piePctSum);
 
-    <!-- PHASE 2: Main content -->
-    <div class="tab-main-content hidden" id="ic-main">
+  const html = `<div class="tab-main-content" id="ic-main">
+      <style>
+        #ic-pie-detail-investors .tp-path-detail.visible { max-height: 220px !important; }
+      </style>
 
-      <!-- Persistent Collapsible Filter Bar (always visible) -->
+      <!-- Persistent Collapsible Filter Bar -->
       <div class="journey-step">
         <div class="persistent-filter-bar" id="ic-pfb">
           <div class="pfb-collapsed" id="ic-pfb-toggle">
             <div class="pfb-filter-values">
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Organisation Location:</span><span class="pfb-chip-value" id="ic-pfb-cv-country">Germany</span></div>
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Industry:</span><span class="pfb-chip-value" id="ic-pfb-cv-industry">Tech / Software</span></div>
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Investor Location:</span><span class="pfb-chip-value" id="ic-pfb-cv-investor-loc">USA</span></div>
+              <div class="pfb-filter-chip"><span class="pfb-chip-label">Organisation Location:</span><span class="pfb-chip-value" id="ic-pfb-cv-country">${filters.location}</span></div>
+              <div class="pfb-filter-chip"><span class="pfb-chip-label">Industry:</span><span class="pfb-chip-value" id="ic-pfb-cv-industry">${filters.industry}</span></div>
+              <div class="pfb-filter-chip"><span class="pfb-chip-label">Investor Location:</span><span class="pfb-chip-value" id="ic-pfb-cv-investor-loc">Choose Location</span></div>
             </div>
             <div class="pfb-toggle-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -136,437 +112,552 @@ export function renderIntlCapital(container) {
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Organisation Location:</label>
                 <select class="pfb-dropdown-select" id="ic-pfb-country">
-                  <option>Germany</option><option>Finland</option><option>Austria</option><option>Switzerland</option><option>France</option>
+                  <option value="" disabled>Choose Location</option>
+                  <option>Austria</option><option>China</option><option>Finland</option><option>France</option><option>Germany</option><option>India</option><option>Switzerland</option><option>United Kingdom</option><option>United States</option>
                 </select>
               </div>
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Industry:</label>
                 <select class="pfb-dropdown-select" id="ic-pfb-industry">
-                  <option>Tech / Software</option><option>Consumer Goods</option><option>Energy / Resources</option><option>Mobility / Infrastructure</option><option>Health / Biotechnology</option>
+                  <option value="" disabled>Choose Industry</option>
+                  <option>Consumer Goods</option><option>Energy / Resources</option><option>Finance / Consulting</option><option>Health / Biotechnology</option><option>Media / Entertainment</option><option>Mobility / Infrastructure</option><option>Tech / Software</option>
                 </select>
               </div>
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Investor Location:</label>
                 <select class="pfb-dropdown-select" id="ic-pfb-investor-loc">
-                  <option>USA</option><option>China</option><option>India</option><option>UK</option><option>Japan</option>
+                  <option value="">Choose Location</option>
                 </select>
               </div>
             </div>
-            <div class="pfb-apply-row">
-              <button class="pfb-apply-btn" id="ic-pfb-apply">Apply Filters</button>
-            </div>
           </div>
         </div>
       </div>
 
-      <!-- Domestic Funding Question -->
-      <div class="journey-step">
-        <div class="ic-domestic-question" id="ic-domestic-question">
-          <h3 class="ic-domestic-question-text">Do you plan to get domestic funding beforehand?</h3>
-          <div class="ic-domestic-buttons">
-            <button class="ic-domestic-btn ic-domestic-btn--yes" id="ic-domestic-yes">Yes</button>
-            <button class="ic-domestic-btn ic-domestic-btn--no" id="ic-domestic-no">No</button>
-          </div>
-        </div>
-      </div>
-
-      <!-- YES section: DJ Console only (hidden until Yes is clicked) -->
-      <div class="ic-yes-section hidden" id="ic-yes-section">
+      <!-- Landing Page (Bars) -->
+      <div id="ic-landing">
         <div class="journey-step">
-          <div class="dj-console dj-console--compact">
-            <!-- Header strip -->
-            <div class="dj-header">
-              <div class="dj-header-left">Your previous domestic<br/>Financing-Instrument-Mix:</div>
-              <div class="dj-header-center">Median months since founded<br/>until that instrument:</div>
-              <div class="dj-header-right">Path similarity to peers that<br/>received intl. investment later:</div>
+          <div class="tp-paths-container" style="position: relative; z-index: 99;">
+            <div class="tp-title-card" style="display: flex; align-items: center; justify-content: space-between;">
+              <span class="tp-paths-title" style="margin-bottom: 0; padding-left: 20px;">Country share of international investments in your ecosystem.</span>
             </div>
+            <div class="tp-paths-list" style="padding: 12px 0 24px 0;">
+              <div id="ic-countries-bars" style="display: flex; flex-direction: column; gap: 8px;"></div>
+            </div>
+          </div>
+        </div>
+      </div>
 
-            <div class="dj-body dj-body--compact">
-              <!-- Left + Center: Channel strips -->
-              <div class="dj-channels">
-                ${channels.map((ch, i) => `
-                  <div class="dj-channel" id="dj-ch-${ch.id}" data-idx="${i}">
-                    <div class="dj-ch-toggle-area">
-                      <button class="dj-ch-toggle" id="dj-toggle-${ch.id}" data-idx="${i}" aria-label="Toggle ${ch.label}">
-                        <span class="dj-toggle-knob"></span>
-                      </button>
-                      <span class="dj-ch-label">${ch.label}:</span>
-                    </div>
-                    <div class="dj-ch-fader-area dj-ch-fader-area--compact">
-                      <div class="dj-fader-track dj-fader-track--compact">
-                        <div class="dj-fader-fill" id="dj-fill-${ch.id}"></div>
+      <!-- Detail Page (Tabs + Visuals) -->
+      <div id="ic-detail" class="hidden">
+        <div class="journey-step">
+          <div style="display: flex; justify-content: center; margin-bottom: 32px;">
+            <nav class="tab-nav">
+              <button class="tab-btn active" id="ic-tab-domestic">Domestic Funding Beforehand</button>
+              <button class="tab-btn" id="ic-tab-intl">International Investments</button>
+            </nav>
+          </div>
+        </div>
+
+        <!-- 1) DOMESTIC VIEW -->
+        <div id="ic-domestic-view" class="ic-buckets-wrapper" style="position: relative; z-index: 100;">
+          <div class="journey-step">
+            <div class="ic-buckets-section">
+              <div class="ic-buckets-header-row" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <h3 class="ic-buckets-title" id="ic-dom-title" style="max-width: 800px; margin-bottom: 6px;">These domestic funding instruments were utilized by peers before receiving international investment from investors in your selected country.</h3>
+                <p style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 24px;">Click on the relevant bucket to be forwarded to the Typical Investors tab.</p>
+              </div>
+              
+              <div class="ic-buckets-content">
+                <div class="ic-buckets-row" style="margin-bottom: 0;">
+                  ${bucketData.map((b, i) => `
+                    <div class="ic-bucket" id="ic-bucket-${b.id}" data-idx="${i}" style="cursor: pointer; position: relative;">
+                      <div class="ic-bucket-container">
+                        <div class="ic-bucket-glass">
+                          <div class="ic-bucket-liquid" id="ic-liquid-${b.id}" style="--bucket-color: ${b.rawColor}; --fill-pct: ${b.fill}%;">
+                            <div class="ic-bucket-wave"></div>
+                            <div class="ic-bubble" style="--bubble-size: 6px; --bubble-left: 20%; --bubble-delay: 0s; --bubble-duration: 3s;"></div>
+                            <div class="ic-bubble" style="--bubble-size: 4px; --bubble-left: 45%; --bubble-delay: 0.8s; --bubble-duration: 2.5s;"></div>
+                            <div class="ic-bubble" style="--bubble-size: 8px; --bubble-left: 70%; --bubble-delay: 1.5s; --bubble-duration: 3.5s;"></div>
+                            <div class="ic-bubble" style="--bubble-size: 5px; --bubble-left: 35%; --bubble-delay: 2.2s; --bubble-duration: 2.8s;"></div>
+                            <div class="ic-bubble" style="--bubble-size: 7px; --bubble-left: 80%; --bubble-delay: 0.5s; --bubble-duration: 3.2s;"></div>
+                            <div class="ic-bubble" style="--bubble-size: 10px; --bubble-left: 55%; --bubble-delay: 1.8s; --bubble-duration: 4s;"></div>
+                          </div>
+                          <div class="ic-bucket-pct" id="ic-pct-${b.id}">${b.fill}%</div>
+                        </div>
                       </div>
-                      <span class="dj-ch-months" id="dj-months-${ch.id}">–</span>
-                      <span class="dj-ch-months-label">Months</span>
+                      <div class="ic-bucket-label" style="color: ${b.rawColor}">${b.label}</div>
                     </div>
-                  </div>
-                `).join('')}
+                  `).join('')}
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- 2) INTL VIEW -->
+        <div id="ic-intl-view" class="hidden" style="position: relative; z-index: 100;">
+          <div class="journey-step">
+            <div class="ic-buckets-section">
+              <div class="ic-buckets-header-row" style="display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center;">
+                <h3 class="ic-buckets-title" id="ic-intl-title" style="max-width: 800px; margin-bottom: 6px;">These are the funding types preferred by investors from the selected country in your ecosystem.</h3>
+                <p style="font-size: var(--fs-sm); color: var(--text-muted); margin-bottom: 24px;">Click on the funding type to see the investors from abroad.</p>
               </div>
 
-              <!-- Right: Needle Gauge -->
-              <div class="dj-gauge-area">
-                <div class="dj-gauge" id="dj-gauge">
-                  <svg viewBox="0 0 200 120" class="dj-gauge-svg">
-                    <!-- Background arc segments -->
-                    <path d="M 20 110 A 80 80 0 0 1 100 30" stroke="rgba(0,0,0,0.08)" stroke-width="14" fill="none" stroke-linecap="round"/>
-                    <path d="M 100 30 A 80 80 0 0 1 180 110" stroke="rgba(0,0,0,0.08)" stroke-width="14" fill="none" stroke-linecap="round"/>
-                    <!-- Colored arc (fills based on value) -->
-                    <path d="M 20 110 A 80 80 0 0 1 180 110" stroke="rgba(0,0,0,0.04)" stroke-width="14" fill="none" stroke-linecap="round" id="dj-gauge-bg"/>
-                    <path d="M 20 110 A 80 80 0 0 1 180 110" stroke="url(#gaugeGrad)" stroke-width="14" fill="none" stroke-linecap="round" id="dj-gauge-arc"
-                      stroke-dasharray="251.2" stroke-dashoffset="251.2" style="visibility:hidden;"/>
-                    <!-- Gradient -->
-                    <defs>
-                      <linearGradient id="gaugeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#6366f1"/>
-                        <stop offset="50%" stop-color="#818cf8"/>
-                        <stop offset="100%" stop-color="#4ade80"/>
-                      </linearGradient>
-                    </defs>
-                    <!-- Needle -->
-                    <line x1="100" y1="110" x2="100" y2="40" stroke="#1a1a2e" stroke-width="3" stroke-linecap="round" id="dj-gauge-needle"
-                      transform="rotate(-90, 100, 110)" style="transition: transform 1s cubic-bezier(0.34, 1.56, 0.64, 1);"/>
-                    <!-- Center dot -->
-                    <circle cx="100" cy="110" r="6" fill="#1a1a2e"/>
-                  </svg>
+              <!-- Flex gap ensures responsive side-by-side -->
+              <div id="ic-pie-row" style="transition: all 0.6s ease; display: flex; align-items: flex-start; justify-content: center; gap: 48px; flex-wrap: wrap;">
+                
+                <!-- PIE CHART WRAPPER -->
+                <div class="ic-pie-wrapper" style="transition: transform 0.6s ease; flex-shrink: 0; display: flex; flex-direction: column; align-items: center; position: relative;">
+                  <svg width="340" height="340" viewBox="-1.2 -1.2 2.4 2.4" style="transform: rotate(-90deg);" id="ic-pie-svg"></svg>
+                  <div class="ic-pie-legend" style="display: flex; flex-wrap: wrap; gap: 12px; justify-content: center; margin-top: 20px; width: 340px;">
+                    ${pieData.map((p, i) => `
+                      <div style="display: flex; align-items: center; gap: 6px; cursor: pointer;" id="ic-pie-leg-${p.id}">
+                        <div style="width: 12px; height: 12px; border-radius: 50%; background: ${p.rawColor}"></div>
+                        <span style="font-size: var(--fs-sm); color: var(--text-color);">${p.label}</span>
+                      </div>
+                    `).join('')}
+                  </div>
                 </div>
-                <div class="dj-gauge-value" id="dj-gauge-value">0%</div>
+
+                <!-- DETAIL PANEL (Typical Investors Style) -->
+                <div id="ic-pie-detail" style="display:none; flex: 2; min-width: 600px; width: 100%; background: var(--bg-surface); border: 1px solid var(--border); border-radius: var(--radius-xl); box-shadow: var(--shadow-sm); overflow: hidden; align-self: flex-start;">
+                  <div id="ic-pie-detail-header" style="padding: 16px 20px; background: var(--surface-hover); border-bottom: 1px solid var(--border);"></div>
+                  <!-- Exact CSS Class from Key Investors -->
+                  <div class="tp-paths-list tp-paths-list--bordered" id="ic-pie-detail-investors" style="padding: 0; max-height: 340px; overflow-y: auto;"></div>
+                </div>
               </div>
             </div>
           </div>
         </div>
       </div>
-
-      <!-- Funding Stage Buckets (hidden until a choice is made) -->
-      <div class="ic-buckets-wrapper hidden" id="ic-buckets-wrapper">
-        <div class="journey-step">
-          <div class="ic-buckets-section" id="ic-buckets-section">
-            <div class="ic-buckets-header-row" id="ic-buckets-toggle">
-              <h3 class="ic-buckets-title">Those are the stages international investors typically invest in.</h3>
-              <svg class="ic-buckets-chevron" id="ic-buckets-chevron" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
-            </div>
-            <div class="ic-buckets-collapsible hidden" id="ic-buckets-collapsible">
-          <div class="ic-buckets-row" id="ic-buckets-row">
-            ${bucketData.map((b, i) => `
-              <div class="ic-bucket" id="ic-bucket-${b.id}" data-idx="${i}">
-                <div class="ic-bucket-container">
-                  <div class="ic-bucket-glass">
-                    <div class="ic-bucket-liquid" id="ic-liquid-${b.id}" style="--bucket-color: ${b.rawColor}; --fill-pct: ${b.fill}%;">
-                      <div class="ic-bucket-wave"></div>
-                      <div class="ic-bubble" style="--bubble-size: 6px; --bubble-left: 20%; --bubble-delay: 0s; --bubble-duration: 3s;"></div>
-                      <div class="ic-bubble" style="--bubble-size: 4px; --bubble-left: 45%; --bubble-delay: 0.8s; --bubble-duration: 2.5s;"></div>
-                      <div class="ic-bubble" style="--bubble-size: 8px; --bubble-left: 70%; --bubble-delay: 1.5s; --bubble-duration: 3.5s;"></div>
-                      <div class="ic-bubble" style="--bubble-size: 5px; --bubble-left: 35%; --bubble-delay: 2.2s; --bubble-duration: 2.8s;"></div>
-                      <div class="ic-bubble" style="--bubble-size: 7px; --bubble-left: 80%; --bubble-delay: 0.5s; --bubble-duration: 3.2s;"></div>
-                      <div class="ic-bubble" style="--bubble-size: 10px; --bubble-left: 55%; --bubble-delay: 1.8s; --bubble-duration: 4s;"></div>
-                    </div>
-                    <div class="ic-bucket-pct">${b.fill}%</div>
-                  </div>
-                </div>
-                <div class="ic-bucket-label" style="color: ${b.rawColor}">${b.label}</div>
-              </div>
-            `).join('')}
-          </div>
-
-          <!-- Detail panel (hidden by default) -->
-          <div class="ic-bucket-detail" id="ic-bucket-detail" style="display:none;">
-            <div class="ic-detail-header" id="ic-detail-header"></div>
-            <div class="ic-detail-investors" id="ic-detail-investors"></div>
-            <div class="ic-detail-meta" id="ic-detail-meta"></div>
-          </div>
-          </div>
-        </div>
-      </div>
-      </div>
-
-    </div>
-  `;
+    </div>`;
+  container.innerHTML = html;
 
   /* ── DOM refs ── */
-  const introEl = document.getElementById('ic-intro');
   const mainEl = document.getElementById('ic-main');
-  const domesticQuestion = document.getElementById('ic-domestic-question');
-  const yesSection = document.getElementById('ic-yes-section');
-  const bucketsWrapper = document.getElementById('ic-buckets-wrapper');
+  const landingEl = document.getElementById('ic-landing');
+  const detailEl = document.getElementById('ic-detail');
+
   const pfb = document.getElementById('ic-pfb');
   const pfbToggle = document.getElementById('ic-pfb-toggle');
-  const pfbApply = document.getElementById('ic-pfb-apply');
+  const pfbCountry = document.getElementById('ic-pfb-country');
+  const pfbIndustry = document.getElementById('ic-pfb-industry');
+  const pfbInvestorLoc = document.getElementById('ic-pfb-investor-loc');
 
-  /* ── PFB toggle ── */
+  const tabDomesticBtn = document.getElementById('ic-tab-domestic');
+  const tabIntlBtn = document.getElementById('ic-tab-intl');
+  const domesticView = document.getElementById('ic-domestic-view');
+  const intlView = document.getElementById('ic-intl-view');
+
+  pfbCountry.value = filters.location;
+  pfbIndustry.value = filters.industry;
+
   pfbToggle.addEventListener('click', () => pfb.classList.toggle('expanded'));
 
-  /* ── PFB sync & apply ── */
-  function syncIntroToPfb() {
-    document.getElementById('ic-pfb-country').value = document.getElementById('ic-hero-country').value;
-    document.getElementById('ic-pfb-industry').value = document.getElementById('ic-hero-industry').value;
-    document.getElementById('ic-pfb-investor-loc').value = document.getElementById('ic-hero-investor-loc').value;
-    updateChips();
+  function updateInvestorOptions(defaultVal = '') {
+    const orgLocVal = pfbCountry.value;
+    let selectedVal = pfbInvestorLoc.value || defaultVal;
+    if (selectedVal === orgLocVal) selectedVal = "";
+    pfbInvestorLoc.innerHTML = '<option value="">Choose Location</option>';
+    if (!orgLocVal) return;
+    allLocations.forEach(loc => {
+      if (loc !== orgLocVal) {
+        const opt = document.createElement('option');
+        opt.value = loc; opt.textContent = loc;
+        if (loc === selectedVal) opt.selected = true;
+        pfbInvestorLoc.appendChild(opt);
+      }
+    });
+    if (!selectedVal) pfbInvestorLoc.options[0].selected = true;
   }
-  function updateChips() {
-    document.getElementById('ic-pfb-cv-country').textContent = document.getElementById('ic-pfb-country').value;
-    document.getElementById('ic-pfb-cv-industry').textContent = document.getElementById('ic-pfb-industry').value;
-    document.getElementById('ic-pfb-cv-investor-loc').textContent = document.getElementById('ic-pfb-investor-loc').value;
-  }
-  pfbApply.addEventListener('click', () => {
-    updateChips();
-    pfb.classList.remove('expanded');
-  });
 
-  /* ── Update needle gauge ── */
-  function updateGauge() {
-    const prob = calcProbability(channelStates);
-
-    // Update needle rotation: -90deg (0%) to +90deg (100%)
-    const angle = -90 + (prob / 100) * 180;
-    const needle = document.getElementById('dj-gauge-needle');
-    if (needle) needle.setAttribute('transform', `rotate(${angle}, 100, 110)`);
-
-    // Update arc fill
-    const arc = document.getElementById('dj-gauge-arc');
-    if (arc) {
-      const totalLength = 251.2;
-      const offset = totalLength - (prob / 100) * totalLength;
-      arc.setAttribute('stroke-dashoffset', offset);
-      // Hide arc at 0% to avoid green dot artifact from round linecap
-      arc.style.visibility = prob > 0 ? 'visible' : 'hidden';
+  function switchTab(viewId) {
+    if (viewId === 'domestic') {
+      tabIntlBtn.classList.remove('active');
+      tabDomesticBtn.classList.add('active');
+      intlView.classList.add('hidden');
+      domesticView.classList.remove('hidden');
+      journeyReveal(domesticView, 50, 200);
+      bucketData.forEach(ob => {
+        const l = document.getElementById(`ic-liquid-${ob.id}`);
+        if(l) l.style.height = '0%';
+      });
+      bucketsAnimated = false;
+      setTimeout(() => animateBucketFills(), 200);
+    } else {
+      tabDomesticBtn.classList.remove('active');
+      tabIntlBtn.classList.add('active');
+      domesticView.classList.add('hidden');
+      intlView.classList.remove('hidden');
+      journeyReveal(intlView, 50, 200);
+      drawPieChart();
     }
-
-    // Update value display
-    const valueEl = document.getElementById('dj-gauge-value');
-    if (valueEl) valueEl.textContent = prob + '%';
-
-    return prob;
   }
 
-  // Debounced AI Expert hook
-  let aiHookTimeout = null;
-  function triggerAIEvaluation() {
-    clearTimeout(aiHookTimeout);
-    aiHookTimeout = setTimeout(() => {
-      const prob = calcProbability(channelStates);
-      const activeInstr = channelStates.filter(c => c.active).map((c, i) => channels[i].label);
-      const totalMonths = channelStates.reduce((acc, c) => acc + (c.active ? c.months : 0), 0);
-      handleProbabilityChange(prob, activeInstr, totalMonths);
-    }, 1000);
+  tabDomesticBtn.addEventListener('click', () => switchTab('domestic'));
+  tabIntlBtn.addEventListener('click', () => switchTab('intl'));
+
+  /* ── Draw SVG Pie Chart ── */
+  let activePieSlice = null;
+  function drawPieChart() {
+    const svg = document.getElementById('ic-pie-svg');
+    if (!svg) return;
+    let cumulativePct = 0;
+    function getCoordsForPct(pct) {
+      const x = Math.cos(2 * Math.PI * pct);
+      const y = Math.sin(2 * Math.PI * pct);
+      return [x, y];
+    }
+    svg.innerHTML = '';
+    pieData.forEach((slice, i) => {
+      const startPct = cumulativePct / 100;
+      const endPct = (cumulativePct + slice.pct) / 100;
+      cumulativePct += slice.pct;
+      const [startX, startY] = getCoordsForPct(startPct);
+      const [endX, endY] = getCoordsForPct(endPct);
+      const largeArcFlag = slice.pct > 50 ? 1 : 0;
+      
+      const pathData = `M 0 0 L ${startX} ${startY} A 1 1 0 ${largeArcFlag} 1 ${endX} ${endY} Z`;
+      const pathEl = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+      pathEl.setAttribute('d', pathData);
+      pathEl.setAttribute('fill', slice.rawColor);
+      pathEl.setAttribute('stroke', '#ffffff');
+      pathEl.setAttribute('stroke-width', '0.015');
+      pathEl.style.cursor = 'pointer';
+      pathEl.style.transition = 'transform 0.3s ease, opacity 0.3s ease';
+      pathEl.id = `ic-pie-path-${slice.id}`;
+      pathEl.addEventListener('mouseenter', () => pathEl.style.opacity = '0.8');
+      pathEl.addEventListener('mouseleave', () => pathEl.style.opacity = '1');
+      const toggleFn = () => {
+        if (activePieSlice === slice.id) collapsePie(); else expandPie(slice);
+      };
+      pathEl.addEventListener('click', toggleFn);
+      const legEl = document.getElementById(`ic-pie-leg-${slice.id}`);
+      if (legEl) legEl.addEventListener('click', toggleFn);
+      svg.appendChild(pathEl);
+
+      // Label Text inside Pie
+      if (slice.pct >= 5) {
+        const textPct = startPct + (slice.pct / 200);
+        const textRadius = 0.65;
+        const textX = Math.cos(2 * Math.PI * textPct) * textRadius;
+        const textY = Math.sin(2 * Math.PI * textPct) * textRadius;
+        const textEl = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        textEl.setAttribute('x', textX);
+        textEl.setAttribute('y', textY);
+        textEl.setAttribute('text-anchor', 'middle');
+        textEl.setAttribute('transform', `rotate(90, ${textX}, ${textY})`);
+        textEl.setAttribute('fill', '#ffffff');
+        textEl.setAttribute('font-size', '0.14');
+        textEl.setAttribute('font-weight', 'bold');
+        textEl.setAttribute('font-family', 'sans-serif');
+        textEl.setAttribute('pointer-events', 'none');
+        textEl.setAttribute('dy', '0.05');
+        textEl.textContent = `${slice.pct}%`;
+        svg.appendChild(textEl);
+      }
+    });
   }
 
-  /* ── Channel toggles (auto-set median months, read-only fader) ── */
-  channels.forEach((ch, i) => {
-    const toggle = document.getElementById(`dj-toggle-${ch.id}`);
-    const monthsDisplay = document.getElementById(`dj-months-${ch.id}`);
-    const fillBar = document.getElementById(`dj-fill-${ch.id}`);
-    const channelEl = document.getElementById(`dj-ch-${ch.id}`);
+  let selectedPieInvestorIdx = null;
 
-    toggle.addEventListener('click', () => {
-      channelStates[i].active = !channelStates[i].active;
-      toggle.classList.toggle('on', channelStates[i].active);
-      channelEl.classList.toggle('active', channelStates[i].active);
-
-      if (channelStates[i].active) {
-        // Auto-set to median months
-        channelStates[i].months = ch.medianMonths;
-        monthsDisplay.textContent = ch.medianMonths;
-        fillBar.style.width = (ch.medianMonths / 60 * 100) + '%';
-      } else {
-        channelStates[i].months = 0;
-        monthsDisplay.textContent = '–';
-        fillBar.style.width = '0%';
-      }
-      updateGauge();
-    });
-  });
-
-  /* ── Bucket interactions ── */
-  let activeBucket = null;
-
-  function animateBucketFills() {
-    bucketData.forEach((b) => {
-      const liquid = document.getElementById(`ic-liquid-${b.id}`);
-      if (liquid) {
-        setTimeout(() => {
-          liquid.style.height = b.fill + '%';
-        }, 300);
-      }
-    });
-  }
-
-  function expandBucket(idx) {
-    const b = bucketData[idx];
-    const bucketsRow = document.getElementById('ic-buckets-row');
-    const detailPanel = document.getElementById('ic-bucket-detail');
-
-    // Mark active
-    activeBucket = idx;
-    bucketsRow.classList.add('ic-buckets-row--expanded');
-
-    // Hide all buckets except this one
-    bucketData.forEach((ob, oi) => {
-      const el = document.getElementById(`ic-bucket-${ob.id}`);
-      const liquid = document.getElementById(`ic-liquid-${ob.id}`);
-      if (oi === idx) {
-        el.classList.add('ic-bucket--active');
-        // Agitate water on the active bucket
-        if (liquid) {
-          liquid.classList.add('agitated');
-          setTimeout(() => liquid.classList.remove('agitated'), 1200);
-        }
-      } else {
-        el.classList.add('ic-bucket--hidden');
-      }
-    });
-
-    // Populate detail panel
-    const headerEl = document.getElementById('ic-detail-header');
-    const investorsEl = document.getElementById('ic-detail-investors');
-    const metaEl = document.getElementById('ic-detail-meta');
-
-    headerEl.innerHTML = '';
-
-    investorsEl.innerHTML = `
-      <div class="ic-detail-grid">
-        <!-- Left: Median Time card -->
-        <div class="ic-detail-card">
-          <div class="ic-detail-card-icon" style="color: ${b.rawColor}">
-            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M12 6v6l4 2"></path>
-            </svg>
-          </div>
-          <div class="ic-detail-card-value" style="color: ${b.rawColor}">${b.medianTime}</div>
-          <div class="ic-detail-card-label">Median Time to Funding</div>
-        </div>
-
-        <!-- Right: Top 5 investors -->
-        ${b.investors.map((inv, rank) => `
-          <div class="ic-detail-card">
-            <div class="ic-detail-card-icon ic-detail-rank" style="background: ${b.rawColor}">${rank + 1}</div>
-            <div class="ic-detail-card-value" style="display: flex; align-items: center; justify-content: center; gap: 6px;">
-              ${inv.name}
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" style="color: var(--text-muted);">
-                <path d="M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"></path>
-                <polyline points="15 3 21 3 21 9"></polyline>
-                <line x1="10" y1="14" x2="21" y2="3"></line>
+  function buildPieInvestorDetail(inv, sliceObj) {
+    return `
+      <div class="tp-path-detail">
+        <div class="tp-stats-row">
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
               </svg>
             </div>
-            <div class="ic-detail-card-label">${inv.deals} deals</div>
+            <div style="flex:1;">
+              <div class="stat-label">Number of Deals:</div>
+              <div class="stat-value">${Math.floor(inv.deals * 0.4)}</div>
+            </div>
           </div>
-        `).join('')}
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <!-- Clock Icon -->
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <path d="M12 6v6l4 2"/>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div class="stat-label">Median Time until Funding:</div>
+              <div class="stat-value">${sliceObj.medianTime}</div>
+            </div>
+          </div>
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div class="stat-label">Stage Context:</div>
+              <div class="stat-value" style="font-size: 1.25rem;">${sliceObj.label}</div>
+            </div>
+          </div>
+        </div>
       </div>
     `;
-
-    metaEl.innerHTML = '';
-
-    detailPanel.style.display = 'flex';
-    setTimeout(() => detailPanel.classList.add('ic-detail--visible'), 50);
-
   }
 
-  function collapseBucket() {
-    const bucketsRow = document.getElementById('ic-buckets-row');
-    const detailPanel = document.getElementById('ic-bucket-detail');
+  function deselectPieInvestor(skipReset = false) {
+    if (selectedPieInvestorIdx !== null) {
+      const cardEl = document.getElementById(`ic-inv-card-${selectedPieInvestorIdx}`);
+      if (cardEl) {
+        cardEl.classList.remove('selected');
+        const btn = document.getElementById(`ic-inv-btn-${selectedPieInvestorIdx}`);
+        if (btn) btn.innerHTML = 'Details';
+        const detail = cardEl.querySelector('.tp-path-detail');
+        if (detail) {
+          detail.classList.remove('visible');
+          setTimeout(() => detail.remove(), 300);
+        }
+      }
+    }
+    if (!skipReset) selectedPieInvestorIdx = null;
+  }
 
-    // Agitate water on the active bucket before collapsing
-    if (activeBucket !== null) {
-      const b = bucketData[activeBucket];
+  function selectPieInvestor(idx, inv, sliceObj) {
+    if (selectedPieInvestorIdx === idx) { deselectPieInvestor(); return; }
+    if (selectedPieInvestorIdx !== null) { deselectPieInvestor(true); }
+
+    selectedPieInvestorIdx = idx;
+    
+    const cardEl = document.getElementById(`ic-inv-card-${idx}`);
+    cardEl.classList.add('selected');
+    const btn = document.getElementById(`ic-inv-btn-${idx}`);
+    if (btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+    const detailHTML = buildPieInvestorDetail(inv, sliceObj);
+    cardEl.insertAdjacentHTML('beforeend', detailHTML);
+
+    const detail = cardEl.querySelector('.tp-path-detail');
+    requestAnimationFrame(() => {
+      detail.classList.add('visible');
+    });
+  }
+
+  function expandPie(sliceObj) {
+    activePieSlice = sliceObj.id;
+    selectedPieInvestorIdx = null;
+    const panel = document.getElementById('ic-pie-detail');
+    const header = document.getElementById('ic-pie-detail-header');
+    const investorsList = document.getElementById('ic-pie-detail-investors');
+    
+    // Highlight wedge
+    pieData.forEach(p => {
+      const pth = document.getElementById(`ic-pie-path-${p.id}`);
+      if(pth) {
+        pth.style.opacity = p.id === sliceObj.id ? '1' : '0.4';
+        pth.style.transform = p.id === sliceObj.id ? 'scale(1.02)' : 'scale(1)';
+      }
+    });
+    
+    header.innerHTML = `
+      <div style="display: flex; justify-content: space-between; align-items: center;">
+        <span style="font-weight: 600; font-size: 1.1rem; color: ${sliceObj.rawColor}">Foreign Investors for ${sliceObj.label}</span>
+        <button id="ic-pie-close" style="background: var(--surface-alt); border: 1px solid var(--border); border-radius: var(--radius-sm); cursor: pointer; color: var(--text-color); padding: 4px; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </button>
+      </div>
+    `;
+    
+    document.getElementById('ic-pie-close').addEventListener('click', collapsePie);
+    
+    // Build list
+    investorsList.innerHTML = '';
+    const color = sliceObj.rawColor;
+    
+    sliceObj.investors.forEach((inv, j) => {
+      const cardEl = document.createElement('div');
+      cardEl.className = 'tp-path-card';
+      cardEl.id = `ic-inv-card-${j}`;
+      
+      const badgeHTML = `<div style="font-size: 0.875rem; font-weight: 600; padding: 4px 12px; border-radius: 6px; white-space: nowrap; color: ${color}; background: color-mix(in srgb, ${color} 10%, transparent); display: inline-flex; align-items: center; justify-content: center;">${inv.name}</div>`;
+
+      cardEl.innerHTML = `
+        <div class="tp-path-header">
+          <div class="tp-rank">${j + 1}</div>
+          <div class="tp-path-name" style="display:flex; align-items:center;">${badgeHTML}</div>
+          <button class="tp-path-detail-btn" id="ic-inv-btn-${j}">Details</button>
+        </div>
+      `;
+
+      cardEl.querySelector('.tp-path-header').addEventListener('click', () => selectPieInvestor(j, inv, sliceObj));
+      investorsList.appendChild(cardEl);
+    });
+    
+    panel.style.display = 'block';
+  }
+
+  function collapsePie() {
+    activePieSlice = null;
+    const panel = document.getElementById('ic-pie-detail');
+    panel.style.display = 'none';
+    pieData.forEach(p => {
+      const pth = document.getElementById(`ic-pie-path-${p.id}`);
+      if(pth) { pth.style.opacity = '1'; pth.style.transform = 'scale(1)'; }
+    });
+  }
+
+  /* ── Handles Arrays ── */
+  let bucketsAnimated = false;
+  function animateBucketFills() {
+    if (bucketsAnimated) return;
+    bucketsAnimated = true;
+    const currentSeed = pfbCountry.value + pfbIndustry.value + (pfbInvestorLoc.value || '');
+    const currentRand = getSeededRandom(currentSeed);
+    bucketData[0].fill = Math.floor(40 + (currentRand() % 21));
+    bucketData[1].fill = Math.floor(10 + (currentRand() % 30));
+    bucketData[2].fill = Math.floor(5 + (currentRand() % 30));
+    bucketData[3].fill = Math.floor(1 + (currentRand() % 20));
+    bucketData[4].fill = Math.floor(10 + (currentRand() % 30));
+    bucketData.forEach((b) => {
       const liquid = document.getElementById(`ic-liquid-${b.id}`);
+      const pctEl = document.getElementById(`ic-pct-${b.id}`);
       if (liquid) {
-        liquid.classList.add('agitated');
-        setTimeout(() => liquid.classList.remove('agitated'), 1200);
+        if (pctEl) pctEl.textContent = b.fill + '%';
+        setTimeout(() => { liquid.style.height = Math.min(b.fill, 100) + '%'; }, 100);
       }
-    }
-
-    activeBucket = null;
-    bucketsRow.classList.remove('ic-buckets-row--expanded');
-    detailPanel.classList.remove('ic-detail--visible');
-
-    bucketData.forEach((ob) => {
-      const el = document.getElementById(`ic-bucket-${ob.id}`);
-      el.classList.remove('ic-bucket--active', 'ic-bucket--hidden');
     });
 
-    setTimeout(() => { detailPanel.style.display = 'none'; }, 400);
+    // Rebuild Pie Chart dynamically as well
+    const pieBaseDyn = [
+      { id: 'preseed', w: Math.floor(20 + currentRand() % 20) },
+      { id: 'seed', w: Math.floor(15 + currentRand() % 25) },
+      { id: 'series', w: Math.floor(10 + currentRand() % 15) },
+      { id: 'grant', w: Math.floor(5 + currentRand() % 15) }
+    ];
+    const pTw = pieBaseDyn.reduce((s, x) => s + x.w, 0);
+    pieData.length = 0; // Clear it
+    pieBaseDyn.forEach(slice => {
+      const p = Math.round((slice.w / pTw) * 100);
+      const bucketRef = bucketData.find(b => b.id === slice.id);
+      pieData.push({...bucketRef, pct: p});
+    });
+    const piePctSum = pieData.reduce((s, x) => s + x.pct, 0);
+    if (piePctSum !== 100) pieData[0].pct += (100 - piePctSum);
+
+    if (!intlView.classList.contains('hidden')) drawPieChart();
   }
 
-  // Bind bucket clicks
-  bucketData.forEach((b, i) => {
+  bucketData.forEach((b) => {
     const el = document.getElementById(`ic-bucket-${b.id}`);
-    el.addEventListener('click', () => {
-      if (activeBucket === i) {
-        collapseBucket();
-      } else {
-        if (activeBucket !== null) collapseBucket();
-        setTimeout(() => expandBucket(i), activeBucket !== null ? 450 : 0);
-      }
-    });
-  });
-
-  /* ── Start button ── */
-  document.getElementById('ic-start-btn').addEventListener('click', () => {
-    syncIntroToPfb();
-    introEl.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    introEl.style.opacity = '0';
-    introEl.style.transform = 'translateY(-30px)';
-
-    setTimeout(() => {
-      introEl.style.display = 'none';
-      mainEl.classList.remove('hidden');
-      journeyReveal(mainEl, 200, 400);
-    }, 600);
-  });
-
-  /* ── Yes / No domestic funding buttons ── */
-  let currentChoice = null; // 'yes' | 'no' | null
-  const yesBtn = document.getElementById('ic-domestic-yes');
-  const noBtn = document.getElementById('ic-domestic-no');
-  const bucketsCollapsible = document.getElementById('ic-buckets-collapsible');
-  const bucketsChevron = document.getElementById('ic-buckets-chevron');
-  const bucketsToggleRow = document.getElementById('ic-buckets-toggle');
-  let bucketsExpanded = false;
-  let bucketsFilled = false;
-
-  function applyChoice(choice) {
-    currentChoice = choice;
-
-    // Update button states
-    yesBtn.classList.toggle('active', choice === 'yes');
-    noBtn.classList.toggle('active', choice === 'no');
-
-    if (choice === 'yes') {
-      // Show DJ console
-      yesSection.classList.remove('hidden');
-      journeyReveal(yesSection, 150, 300);
-    } else {
-      // Hide DJ console
-      yesSection.classList.add('hidden');
+    if (el && b.id !== 'nothing') {
+      el.addEventListener('click', () => {
+        const typicalInvestorsTabBtn = document.querySelector('[data-tab="key-investors"]');
+        if (typicalInvestorsTabBtn) typicalInvestorsTabBtn.click();
+      });
     }
+  });
 
-    // Always show the statement + chevron row
-    bucketsWrapper.classList.remove('hidden');
-    journeyReveal(bucketsWrapper, 150, 300);
-
-    // Auto-expand buckets if choice is 'no'
-    if (choice === 'no' && !bucketsExpanded) {
-      setTimeout(() => bucketsToggleRow.click(), 400); // Small delay for visual flow
+  function handleFilterChange() {
+    updateInvestorOptions();
+    setGlobalFilters({ location: pfbCountry.value, industry: pfbIndustry.value, investorLocation: pfbInvestorLoc.value });
+    document.getElementById('ic-pfb-cv-country').textContent = pfbCountry.value;
+    document.getElementById('ic-pfb-cv-industry').textContent = pfbIndustry.value;
+    if(activePieSlice !== null) collapsePie();
+    if (pfbInvestorLoc.value) {
+      document.getElementById('ic-pfb-cv-investor-loc').textContent = pfbInvestorLoc.value;
+      const domTitle = document.getElementById('ic-dom-title');
+      if (domTitle) domTitle.innerHTML = `These domestic funding instruments were utilized by peers before receiving international investment from <span style="color: var(--accent); white-space: nowrap;">${pfbInvestorLoc.value}</span>.`;
+      const intlTitle = document.getElementById('ic-intl-title');
+      if (intlTitle) intlTitle.innerHTML = `These are the funding types, in which investors from <span style="color: var(--accent); white-space: nowrap;">${pfbInvestorLoc.value}</span> invest in your ecosystem.`;
+      landingEl.style.display = 'none';
+      detailEl.classList.remove('hidden');
+      bucketsAnimated = false;
+      bucketData.forEach((ob) => {
+        const l = document.getElementById(`ic-liquid-${ob.id}`);
+        if(l) l.style.height = '0%';
+      });
+      setTimeout(() => animateBucketFills(), 50);
+    } else {
+      document.getElementById('ic-pfb-cv-investor-loc').textContent = 'Choose Location';
+      detailEl.classList.add('hidden');
+      landingEl.style.display = 'block';
+      renderCountryBars();
     }
   }
 
-  yesBtn.addEventListener('click', () => applyChoice('yes'));
-  noBtn.addEventListener('click', () => applyChoice('no'));
+  pfbCountry.addEventListener('change', handleFilterChange);
+  pfbIndustry.addEventListener('change', handleFilterChange);
+  pfbInvestorLoc.addEventListener('change', handleFilterChange);
 
-  // Buckets chevron toggle
-  bucketsToggleRow.addEventListener('click', () => {
-    bucketsExpanded = !bucketsExpanded;
-    bucketsChevron.classList.toggle('rotated', bucketsExpanded);
+  function renderCountryBars() {
+    const barsContainer = document.getElementById('ic-countries-bars');
+    barsContainer.innerHTML = '';
+    const filterCountry = pfbCountry.value || ''; 
+    let availableLocs = allLocations.filter(loc => loc !== filterCountry);
+    const randBar = getSeededRandom(filterCountry + (pfbIndustry.value || ''));
+    const baseWeights = { 'United States': 100, 'China': 80, 'United Kingdom': 65, 'France': 45, 'Germany': 40, 'Switzerland': 30, 'Finland': 20, 'Austria': 15, 'India': 10 };
+    const scoredLocs = availableLocs.map(loc => ({ loc: loc, score: (baseWeights[loc] || 10) + (randBar() % 41) - 20 }));
+    scoredLocs.sort((a, b) => b.score - a.score);
+    const selectedCountries = scoredLocs.slice(0, 6).map(s => s.loc);
+    let remaining = 100;
+    const barData = selectedCountries.map((c, idx) => {
+      if (idx === selectedCountries.length - 1) return { loc: c, pct: remaining };
+      let alloc = Math.floor(remaining * (0.35 + (randBar() % 20)/100)); 
+      if (alloc < 5) alloc = 5;
+      remaining -= alloc;
+      return { loc: c, pct: alloc };
+    });
+    barData.sort((a,b) => b.pct - a.pct);
+    barData.forEach((item, idx) => {
+       const row = document.createElement('div');
+       row.className = 'ps-dist-row'; 
+       row.style.opacity = '0';
+       row.style.transform = 'translateX(-12px)';
+       row.innerHTML = `<div class="ps-dist-plus" style="border-radius: 50%; color: var(--accent); background: var(--surface-hover);">
+           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+             <polyline points="20 6 9 17 4 12"></polyline>
+           </svg>
+         </div>
+         <div class="ps-dist-label" style="min-width: 140px; margin-left: 12px; font-weight: 500;">${item.loc}</div>
+         <div class="ps-dist-bar-track" style="flex: 1;">
+           <div class="ps-dist-bar-fill" style="width:0%; background: var(--accent);">
+             <span class="ps-dist-bar-text">${item.pct}%</span>
+           </div>
+         </div>`;
+       row.addEventListener('click', () => {
+         pfbInvestorLoc.value = item.loc;
+         handleFilterChange();
+       });
+       barsContainer.appendChild(row);
+       setTimeout(() => {
+         row.style.transition = 'opacity 0.5s ease, transform 0.5s ease';
+         row.style.opacity = '1';
+         row.style.transform = 'translateX(0)';
+         row.querySelector('.ps-dist-bar-fill').style.width = item.pct + '%';
+       }, 50 + idx * 80);
+    });
+  }
 
-    if (bucketsExpanded) {
-      bucketsCollapsible.classList.remove('hidden');
-      if (!bucketsFilled) {
-        bucketsFilled = true;
-        setTimeout(() => animateBucketFills(), 300);
-      }
-    } else {
-      bucketsCollapsible.classList.add('hidden');
-    }
-  });
-
-  journeyReveal(introEl, 300, 500);
+  updateInvestorOptions(filters.investorLocation);
+  if (pfbInvestorLoc.value) {
+    document.getElementById('ic-pfb-cv-investor-loc').textContent = pfbInvestorLoc.value;
+    const domTitle = document.getElementById('ic-dom-title');
+    if (domTitle) domTitle.innerHTML = `These domestic funding instruments were utilized by peers before receiving international investment from <span style="color: var(--accent); white-space: nowrap;">${pfbInvestorLoc.value}</span>.`;
+    const intlTitle = document.getElementById('ic-intl-title');
+    if (intlTitle) intlTitle.innerHTML = `These are the funding types, in which investors from <span style="color: var(--accent); white-space: nowrap;">${pfbInvestorLoc.value}</span> invest in your ecosystem.`;
+    landingEl.style.display = 'none';
+    detailEl.classList.remove('hidden');
+    bucketsAnimated = false;
+    setTimeout(() => animateBucketFills(), 300);
+  } else {
+    document.getElementById('ic-pfb-cv-investor-loc').textContent = 'Choose Location';
+    renderCountryBars();
+  }
+  journeyReveal(mainEl, 200, 400);
 }

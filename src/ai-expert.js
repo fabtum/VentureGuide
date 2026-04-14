@@ -18,13 +18,17 @@ let currentTabId = 'typical-paths';
 let isPanelOpen = false;
 
 // --- Gemini API ---
+<<<<<<< HEAD
 const GEMINI_API_KEY = 'xxx';
+=======
+const GEMINI_API_KEY = 'xyz';
+>>>>>>> 5760d56 (Refactor intl-capital: Rounded tabs, scrollable investor lists, dynamic titles, layout fixes)
 const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${GEMINI_API_KEY}`;
 
 // Keep conversation history for contextual replies
 const chatHistory = [];
 const MAX_HISTORY = 20;
-const SYSTEM_PROMPT = `You are Jessica, an experienced AI Incubator Expert and startup funding coach.
+const SYSTEM_PROMPT = `You are Jessica, an experienced AI Incubator Expert and startup funding coach. You dont have to introduce yourself.
 
 Style rules:
 - Keep replies SHORT and engaging — max 2-4 sentences + bullet points if needed.
@@ -34,17 +38,16 @@ Style rules:
 - Respond in the same language the user writes in (German, English, etc.).
 - Be warm, encouraging, and feel like a trusted mentor — not a generic chatbot.
 
-Content rules:
-- Provide actionable, well-founded advice on startup funding, venture capital, grants, angel investment, accelerators, and fundraising strategy.
-- ONLY rely on established, verifiable knowledge. If unsure, say so honestly — never hallucinate or make up data.
-- Reference the conversation history to build on previous exchanges and avoid repeating yourself.
+Tab navigation — guide the user immediately to the right tool when a user texts something similar:
+- When they want to see how peers got funded or compare paths or unsure about financing types/stages or want to plan their path→ suggest "Check out the **Most Common Paths** tab! 📊 or Try the **Funding Type Distribution** tab! 🛤️"
+- When they want to find investors or have questions about investors → suggest "Head over to the **Typical Investors** tab! 🔍"
+- When they ask about international or cross-border funding → suggest "Take a look at the **International Capital** tab! 🌍
 
-Tab navigation — guide the user to the right tool when relevant:
-- When they want to see how peers got funded or compare paths → suggest "Check out the **Typical Paths** tab! 📊"
-- When they want to plan their own funding journey or see typical timelines → suggest "Try the **Path Simulator** tab! 🛤️"
-- When they want to find investors for their ecosystem or stage → suggest "Head over to the **Key Investors** tab! 🔍"
-- When they ask about international or cross-border funding → suggest "Take a look at the **International Capital** tab! 🌍"
-Only mention a tab when it is genuinely relevant to the user's question — don't force it.`;
+Content rules:
+- Provide actionable, well-founded advice on startup funding, venture capital, grants/accelerators, and fundraising strategy.
+- ALL insights and paths in this webapp are based on a dataset covering funding events between January 2020 and December 2025.
+- ONLY rely on established, verifiable knowledge. If unsure, say so honestly — never hallucinate or make up data.
+- Reference the conversation history to build on previous exchanges and avoid repeating yourself."`;
 
 async function callGeminiAPI(userMessage) {
     // Add user message to history
@@ -281,7 +284,7 @@ export function initAIExpert() {
  * Called from main.js once the app shell is visible.
  */
 export function triggerWelcomeMessage() {
-    const welcomeText = "Hi! I'm Jessica, your personal Incubator Co-Pilot. 👋<br/><br/>My recommendations are based on over <strong>100,000 funding sequences since 2020</strong> from founders just like you.<br/><br/>Here's what you can explore:<br/><ul><li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li><li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li><li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li><li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border investment</li></ul><br/>Feel free to ask me anything — I'll point you to the right tab! 🚀<br/><br/><strong>What is your name?</strong>";
+    const welcomeText = "Here's what you can explore:<br/><ul><li>📊 <strong>Typical Paths</strong> — See how peers got funded and filter by Series A paths</li><li>🛤️ <strong>Path Simulator</strong> — Build your own funding journey step by step</li><li>🔍 <strong>Key Investors</strong> — Find the right investors for your stage and ecosystem</li><li>🌍 <strong>International Capital</strong> — Discover what peers did to attract cross-border investment</li></ul><br/>Feel free to ask me anything — I'll point you to the right tab! 🚀<br/><br/><strong>What is your name?</strong>";
 
     if (!sessionStorage.getItem('expertIntroduced')) {
         postCoachMessage(welcomeText, 800);
@@ -356,10 +359,10 @@ function scrollToBottom() {
 export function handleTabSwitch(tabId) {
     currentTabId = tabId;
     const tabIntroMsgs = {
-        'typical-paths': "Let's look at typical funding sequences. Notice anything surprising compared to your assumptions?",
-        'path-simulator': "Here you can build your own path step-by-step. Let's see how your planned timeline holds up.",
-        'key-investors': "Let's find the right investors. What criteria are most important for your lead investor right now?",
-        'intl-capital': "International capital requires a strong foundation. Let's toggle your instruments and test your probability."
+        'typical-paths': "Here you can see the typical funding sequences of your peers and compare different paths towards Series A.",
+        'path-simulator': "Here you can build your own funding journey step-by-step and see the total time and peer distribution for your path.",
+        'key-investors': "Here you can find and select the most prominent investors for your ecosystem and funding types.",
+        'intl-capital': "Here you can see what peers from your ecosystem did to attract international capital."
     };
 
     // Only post intro if they haven't been on this tab recently
@@ -372,23 +375,23 @@ export function handleTabSwitch(tabId) {
 export function handlePathSelection(pathString, seriesARate) {
     const msg = `
     You chose the path <strong>${pathString}</strong>.<br/><br/>
-    <strong>At which stage are you currently at?</strong>
+    At the bottom you can see the median times of this path.
   `;
     postCoachMessage(msg, 600);
 }
 
 /**
- * Called from Path Simulator when an instrument is added
+ * Called from Path Simulator when a Stage is added
  */
 export function handleSimulatorStepAdded(instrumentName, currentStepNum, cumulativeMonths) {
     let msg = `So far you're simulating a path up to <strong>${instrumentName}</strong> (Step ${currentStepNum}) at month ${cumulativeMonths}.`;
 
     if (cumulativeMonths > 36 && currentStepNum <= 2) {
-        msg += `<br/><br/>That's quite a long time for early stages. Does this timing match your product and hiring plans, or is there a risk of losing momentum?`;
+        msg += `<br/><br/>That's quite a long time for early stages. At the bottom you can see the total time for this path and exactly how many peers in your ecosystem chose this path.`;
     } else if (cumulativeMonths < 12 && currentStepNum >= 3) {
-        msg += `<br/><br/><strong>Very fast pacing!</strong> What would need to be true in your sales or product roadmap to keep this highly aggressive velocity realistic?`;
+        msg += `<br/><br/><strong>Very fast pacing!</strong> At the bottom you can see the total time for this path and exactly how many peers in your ecosystem chose this path.`;
     } else {
-        msg += `<br/><br/>Based on this trajectory, what is the single most important metric you need to de-risk before the next round?`;
+        msg += `<br/><br/>At the bottom you can see the total time for this path and exactly how many peers in your ecosystem chose this path.`;
     }
 
     postCoachMessage(msg, 500);
@@ -401,7 +404,7 @@ export function handleInvestorSelection(investorName, investorStage, rank) {
     const msg = `
     You clicked on <strong>${investorName}</strong> as a top ${investorStage} partner.<br/><br/>
     They typically look for strong early signs of product-market fit and a scalable acquisition model at this stage.<br/><br/>
-    <strong>Preparation:</strong> Which milestone would you need to hit in the next 3–6 months to be credible to them? Do you have evidence that fits their portfolio pattern?
+    <strong>Details:</strong> At the bottom you can see the median time until this funding in your ecosystem.
   `;
     postCoachMessage(msg, 400);
 }
@@ -410,7 +413,7 @@ export function handleInvestorSelection(investorName, investorStage, rank) {
  * Called from International Capital when probability changes
  */
 export function handleProbabilityChange(probability, activeInstrumentsList, monthsCount) {
-    const instrStr = activeInstrumentsList.length > 0 ? activeInstrumentsList.join(' + ') : 'no active instruments';
+    const instrStr = activeInstrumentsList.length > 0 ? activeInstrumentsList.join(' + ') : 'no active stages';
 
     let sentiment = '';
     if (probability > 70) {
@@ -424,7 +427,7 @@ export function handleProbabilityChange(probability, activeInstrumentsList, mont
     const msg = `
     You're simulating a scenario with <strong>${instrStr}</strong> at month ${monthsCount}.<br/><br/>
     The model estimates a <strong>${probability}% likelihood</strong> of attracting international capital. ${sentiment}<br/><br/>
-    If you wanted to push this into the 'high likelihood' zone, which instrument or timeline adjustment would be most realistic for your actual plan?
+    Adjust your stages or timeline to see how it impacts your probability.
   `;
     postCoachMessage(msg, 500);
 }

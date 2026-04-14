@@ -1,5 +1,6 @@
 import { journeyReveal } from '../main.js';
 import { handlePathSelection, updateContext } from '../ai-expert.js';
+import { getGlobalFilters, setGlobalFilters } from '../global-filters.js';
 
 /* ───── Data ───── */
 const instruments = [
@@ -146,64 +147,64 @@ const narrativeChartData = {
 /* ── Narrative-specific paths ── */
 const narrativePathsData = {
   'General Overview': [
-    { rank: 1, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 2, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 3, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
-    { rank: 4, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 5, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 6, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 7, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '6 Months' },
-    { rank: 8, name: 'PreSeed – PreSeed – Series A', steps: ['preseed', 'preseed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 9, name: 'PreSeed – Seed – Seed – Series A', steps: ['preseed', 'seed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 10, name: 'Grant – PreSeed – Seed – Series A', steps: ['grant', 'preseed', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 1, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '5 Months', medianBetween: '8 Months' },
+    { rank: 2, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 3, name: 'Series A', steps: ['series-a', null, null, null], medianFirst: '6 Months', medianBetween: '0 Months' },
+    { rank: 4, name: 'PreSeed – Grant – Seed – Series A', steps: ['preseed', 'grant', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 5, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '9 Months' },
+    { rank: 6, name: 'Seed – Grant – Series A', steps: ['seed', 'grant', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Grant – PreSeed – Grant – Series A', steps: ['grant', 'preseed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '4 Months', medianBetween: '7 Months' },
+    { rank: 9, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '5 Months', medianBetween: '6 Months' },
+    { rank: 10, name: 'Grant – Seed – Grant – Series A', steps: ['grant', 'seed', 'grant', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
   ],
   'Grant-Focus': [
-    { rank: 1, name: 'Grant – Grant – PreSeed – Series A', steps: ['grant', 'grant', 'preseed', 'series-a'], medianFirst: '2 Months', medianBetween: '3 Months' },
-    { rank: 2, name: 'Grant – PreSeed – Grant – Series A', steps: ['grant', 'preseed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 3, name: 'Grant – Seed – Grant – Series A', steps: ['grant', 'seed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '5 Months' },
-    { rank: 4, name: 'Grant – Grant – Seed – Series A', steps: ['grant', 'grant', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 5, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
-    { rank: 6, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '6 Months' },
-    { rank: 7, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 8, name: 'Grant – Grant – Grant – Series A', steps: ['grant', 'grant', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '3 Months' },
-    { rank: 9, name: 'Grant – PreSeed – PreSeed – Series A', steps: ['grant', 'preseed', 'preseed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 10, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '7 Months' },
+    { rank: 1, name: 'Grant – Grant – Grant – Series A', steps: ['grant', 'grant', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '3 Months' },
+    { rank: 2, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 3, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '5 Months' },
+    { rank: 4, name: 'Grant – Seed – Grant – Series A', steps: ['grant', 'seed', 'grant', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 5, name: 'Seed – Grant – Series A', steps: ['seed', 'grant', 'series-a', null], medianFirst: '4 Months', medianBetween: '4 Months' },
+    { rank: 6, name: 'Grant – PreSeed – Grant – Series A', steps: ['grant', 'preseed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 7, name: 'PreSeed – Grant – Grant – Series A', steps: ['preseed', 'grant', 'grant', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 8, name: 'Grant – Series A – Series A', steps: ['grant', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 9, name: 'Grant – Grant – Seed – Series A', steps: ['grant', 'grant', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 10, name: 'Seed – Grant – Grant – Series A', steps: ['seed', 'grant', 'grant', 'series-a'], medianFirst: '4 Months', medianBetween: '4 Months' },
   ],
   'PreSeed to Seed': [
-    { rank: 1, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 2, name: 'PreSeed – Seed – Seed – Series A', steps: ['preseed', 'seed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 3, name: 'PreSeed – PreSeed – Seed – Series A', steps: ['preseed', 'preseed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '4 Months' },
-    { rank: 4, name: 'Grant – PreSeed – Seed – Series A', steps: ['grant', 'preseed', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 5, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '7 Months' },
-    { rank: 6, name: 'PreSeed – Grant – Seed – Series A', steps: ['preseed', 'grant', 'seed', 'series-a'], medianFirst: '2 Months', medianBetween: '5 Months' },
-    { rank: 7, name: 'PreSeed – PreSeed – Series A', steps: ['preseed', 'preseed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 8, name: 'Grant – PreSeed – PreSeed – Seed', steps: ['grant', 'preseed', 'preseed', 'seed'], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 9, name: 'PreSeed – Seed – Grant – Series A', steps: ['preseed', 'seed', 'grant', 'series-a'], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 10, name: 'PreSeed – Seed – Series A – Series A', steps: ['preseed', 'seed', 'series-a', 'series-a'], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 1, name: 'PreSeed – PreSeed – Series A', steps: ['preseed', 'preseed', 'series-a', null], medianFirst: '4 Months', medianBetween: '7 Months' },
+    { rank: 2, name: 'PreSeed – Seed – Grant – Series A', steps: ['preseed', 'seed', 'grant', 'series-a'], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 3, name: 'PreSeed – Grant – Series A', steps: ['preseed', 'grant', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 4, name: 'Seed – PreSeed – Series A', steps: ['seed', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 5, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '8 Months' },
+    { rank: 6, name: 'PreSeed – PreSeed – Seed – Series A', steps: ['preseed', 'preseed', 'seed', 'series-a'], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Grant – PreSeed – Grant – Series A', steps: ['grant', 'preseed', 'grant', 'series-a'], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 8, name: 'Seed – PreSeed – Seed – Series A', steps: ['seed', 'preseed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 9, name: 'PreSeed – Grant – Seed – Series A', steps: ['preseed', 'grant', 'seed', 'series-a'], medianFirst: '4 Months', medianBetween: '6 Months' },
+    { rank: 10, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '8 Months' },
   ],
   'Seed-only': [
-    { rank: 1, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 2, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '6 Months' },
-    { rank: 3, name: 'Seed – Seed – Seed – Series A', steps: ['seed', 'seed', 'seed', 'series-a'], medianFirst: '4 Months', medianBetween: '4 Months' },
-    { rank: 4, name: 'Seed – PreSeed – Series A', steps: ['seed', 'preseed', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 5, name: 'PreSeed – Seed – Seed – Series A', steps: ['preseed', 'seed', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 6, name: 'Seed – Grant – Series A', steps: ['seed', 'grant', 'series-a', null], medianFirst: '4 Months', medianBetween: '5 Months' },
-    { rank: 7, name: 'Seed – Seed – Series A – Series A', steps: ['seed', 'seed', 'series-a', 'series-a'], medianFirst: '4 Months', medianBetween: '6 Months' },
-    { rank: 8, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
-    { rank: 9, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '5 Months', medianBetween: '7 Months' },
-    { rank: 10, name: 'Seed – Seed – Grant – Series A', steps: ['seed', 'seed', 'grant', 'series-a'], medianFirst: '4 Months', medianBetween: '4 Months' },
+    { rank: 1, name: 'Seed – Seed – Seed – Series A', steps: ['seed', 'seed', 'seed', 'series-a'], medianFirst: '5 Months', medianBetween: '6 Months' },
+    { rank: 2, name: 'Seed – Grant – Seed – Series A', steps: ['seed', 'grant', 'seed', 'series-a'], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 3, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '4 Months', medianBetween: '8 Months' },
+    { rank: 4, name: 'Grant – Seed – Grant – Series A', steps: ['grant', 'seed', 'grant', 'series-a'], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 5, name: 'Seed – Grant – Series A', steps: ['seed', 'grant', 'series-a', null], medianFirst: '5 Months', medianBetween: '7 Months' },
+    { rank: 6, name: 'Seed – Seed – Series A', steps: ['seed', 'seed', 'series-a', null], medianFirst: '4 Months', medianBetween: '9 Months' },
+    { rank: 7, name: 'Grant – Grant – Seed – Series A', steps: ['grant', 'grant', 'seed', 'series-a'], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 8, name: 'Seed – PreSeed – Seed – Series A', steps: ['seed', 'preseed', 'seed', 'series-a'], medianFirst: '5 Months', medianBetween: '6 Months' },
+    { rank: 9, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '6 Months', medianBetween: '7 Months' },
+    { rank: 10, name: 'Seed – Seed – Series A – Series A', steps: ['seed', 'seed', 'series-a', 'series-a'], medianFirst: '4 Months', medianBetween: '6 Months' },
   ],
   'Fast track to Series A': [
-    { rank: 1, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
-    { rank: 2, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 3, name: 'PreSeed – Seed – Series A', steps: ['preseed', 'seed', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 4, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
-    { rank: 5, name: 'Seed – Series A – Series A', steps: ['seed', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
-    { rank: 6, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '8 Months' },
-    { rank: 7, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '2 Months', medianBetween: '7 Months' },
-    { rank: 8, name: 'Grant – Seed – Series A', steps: ['grant', 'seed', 'series-a', null], medianFirst: '3 Months', medianBetween: '5 Months' },
-    { rank: 9, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
-    { rank: 10, name: 'Series A', steps: ['series-a', null, null, null], medianFirst: '5 Months', medianBetween: '0 Months' },
+    { rank: 1, name: 'Series A', steps: ['series-a', null, null, null], medianFirst: '7 Months', medianBetween: '0 Months' },
+    { rank: 2, name: 'Grant – Series A', steps: ['grant', 'series-a', null, null], medianFirst: '2 Months', medianBetween: '6 Months' },
+    { rank: 3, name: 'Series A – Series A', steps: ['series-a', 'series-a', null, null], medianFirst: '6 Months', medianBetween: '8 Months' },
+    { rank: 4, name: 'PreSeed – Series A', steps: ['preseed', 'series-a', null, null], medianFirst: '3 Months', medianBetween: '5 Months' },
+    { rank: 5, name: 'Grant – Grant – Series A', steps: ['grant', 'grant', 'series-a', null], medianFirst: '2 Months', medianBetween: '4 Months' },
+    { rank: 6, name: 'Seed – Series A', steps: ['seed', 'series-a', null, null], medianFirst: '4 Months', medianBetween: '5 Months' },
+    { rank: 7, name: 'Grant – Series A – Series A', steps: ['grant', 'series-a', 'series-a', null], medianFirst: '3 Months', medianBetween: '6 Months' },
+    { rank: 8, name: 'PreSeed – Grant – Series A', steps: ['preseed', 'grant', 'series-a', null], medianFirst: '3 Months', medianBetween: '4 Months' },
+    { rank: 9, name: 'PreSeed – Series A – Series A', steps: ['preseed', 'series-a', 'series-a', null], medianFirst: '2 Months', medianBetween: '7 Months' },
+    { rank: 10, name: 'Grant – PreSeed – Series A', steps: ['grant', 'preseed', 'series-a', null], medianFirst: '2 Months', medianBetween: '5 Months' },
   ],
 };
 
@@ -284,11 +285,32 @@ function getColor(id) {
   return instruments.find(i => i.id === id)?.color || '#ccc';
 }
 
-/* ───── Render ───── */
+/* ───── Core Functions ───── */
+function getSeededRandom(seedStr) {
+  let h = 0;
+  for (let i = 0; i < seedStr.length; i++) {
+    h = Math.imul(31, h) + seedStr.charCodeAt(i) | 0;
+  }
+  return function() {
+    h = Math.imul(h ^ h >>> 16, 2246822507);
+    h = Math.imul(h ^ h >>> 13, 3266489909);
+    return (h ^= h >>> 16) >>> 0;
+  }
+}
+
+function shufflePaths(arr, seedStr) {
+  const rand = getSeededRandom(seedStr);
+  const result = [...arr];
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = rand() % (i + 1);
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
 function getActivePathsData() {
-  const currentPathsFilter = document.getElementById('tp-pfb-paths')?.value || 'Secured Series A';
-  // Also check hero filter if pfb hasn't been mounted/synced yet
-  if (currentPathsFilter === 'All Paths' || document.getElementById('tp-hero-paths')?.value === 'All Paths') {
+  const isSeriesA = document.getElementById('tp-pfb-seriesa-toggle-collapsed')?.checked;
+  if (!isSeriesA) {
     return diversePathsData;
   }
   return narrativePathsData;
@@ -297,67 +319,26 @@ function getActivePathsData() {
 export function renderTypicalPaths(container) {
   let selectedPathIdx = null;
   let currentNarrative = 'General Overview';
+  const filters = getGlobalFilters();
 
+  /* No intro — render main content directly */
   container.innerHTML = `
-    <!-- PHASE 1: Hero Intro -->
-    <div class="tab-intro" id="tp-intro">
-      <div class="journey-step">
-        <div class="tab-intro-content">
-          <h1 class="tab-intro-headline">
-            Refine your <strong>early-stage funding<br/>journey</strong> by learning from the<br/>proven paths and timing signals of<br/>founders like <span class="hero-accent">YOU</span>.
-          </h1>
-        </div>
-      </div>
-
-      <div class="journey-step">
-        <div class="tab-intro-filters">
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Organisation Location:</label>
-            <select class="hero-filter-select" id="tp-hero-country">
-              <option>Germany</option><option>Finland</option><option>Austria</option><option>Switzerland</option><option>France</option><option>United States</option><option>United Kingdom</option>
-            </select>
-          </div>
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Industry:</label>
-            <select class="hero-filter-select" id="tp-hero-industry">
-              <option>Tech / Software</option><option>Consumer Goods</option><option>Energy / Resources</option><option>Mobility / Infrastructure</option><option>Health / Biotechnology</option><option>Deep Tech</option>
-            </select>
-          </div>
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Paths:</label>
-            <select class="hero-filter-select" id="tp-hero-paths">
-              <option>Secured Series A</option><option>All Paths</option>
-            </select>
-          </div>
-          <div class="hero-filter-group">
-            <label class="hero-filter-label">Narrative:</label>
-            <select class="hero-filter-select" id="tp-hero-narrative">
-              <option>General Overview</option><option>Grant-Focus</option><option>PreSeed to Seed</option><option>Seed-only</option><option>Fast track to Series A</option>
-            </select>
-          </div>
-        </div>
-      </div>
-
-      <div class="journey-step">
-        <button class="hero-cta" id="tp-start-btn">
-          <span>Start your Journey…</span>
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
-        </button>
-      </div>
-    </div>
-
-    <!-- PHASE 2: Main content (hidden until Start is clicked) -->
-    <div class="tab-main-content hidden" id="tp-main">
+    <div class="tab-main-content" id="tp-main">
 
       <!-- Persistent Collapsible Filter Bar -->
       <div class="journey-step">
         <div class="persistent-filter-bar" id="tp-pfb">
           <div class="pfb-collapsed" id="tp-pfb-toggle">
             <div class="pfb-filter-values" id="tp-pfb-chips">
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Organisation Location:</span><span class="pfb-chip-value" id="tp-pfb-cv-country">Germany</span></div>
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Industry:</span><span class="pfb-chip-value" id="tp-pfb-cv-industry">Tech / Software</span></div>
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Paths:</span><span class="pfb-chip-value" id="tp-pfb-cv-paths">Secured Series A</span></div>
-              <div class="pfb-filter-chip"><span class="pfb-chip-label">Narrative:</span><span class="pfb-chip-value" id="tp-pfb-cv-narrative">General Overview</span></div>
+              <div class="pfb-filter-chip"><span class="pfb-chip-label">Organisation Location:</span><span class="pfb-chip-value" id="tp-pfb-cv-country">${filters.location}</span></div>
+              <div class="pfb-filter-chip"><span class="pfb-chip-label">Industry:</span><span class="pfb-chip-value" id="tp-pfb-cv-industry">${filters.industry}</span></div>
+              <div class="pfb-filter-chip" style="margin-left: var(--sp-2);">
+                <span class="pfb-chip-label" style="text-transform: none;">Show ONLY paths that led to a Series A Round</span>
+                <label class="toggle-switch">
+                  <input type="checkbox" id="tp-pfb-seriesa-toggle-collapsed">
+                  <span class="toggle-slider"></span>
+                </label>
+              </div>
             </div>
             <div class="pfb-toggle-icon">
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><path d="M6 9l6 6 6-6"/></svg>
@@ -368,254 +349,247 @@ export function renderTypicalPaths(container) {
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Organisation Location:</label>
                 <select class="pfb-dropdown-select" id="tp-pfb-country">
-                  <option>Germany</option><option>Finland</option><option>Austria</option><option>Switzerland</option><option>France</option><option>United States</option><option>United Kingdom</option>
+                  <option value="" disabled>Choose Location</option>
+                  <option>Austria</option><option>China</option><option>Finland</option><option>France</option><option>Germany</option><option>India</option><option>Switzerland</option><option>United Kingdom</option><option>United States</option>
                 </select>
               </div>
               <div class="pfb-dropdown-group">
                 <label class="pfb-dropdown-label">Industry:</label>
                 <select class="pfb-dropdown-select" id="tp-pfb-industry">
-                  <option>Tech / Software</option><option>Consumer Goods</option><option>Energy / Resources</option><option>Mobility / Infrastructure</option><option>Health / Biotechnology</option><option>Deep Tech</option>
+                  <option value="" disabled>Choose Industry</option>
+                  <option>Consumer Goods</option><option>Deep Tech</option><option>Energy / Resources</option><option>Finance / Consulting</option><option>Health / Biotechnology</option><option>Media / Entertainment</option><option>Mobility / Infrastructure</option><option>Tech / Software</option>
                 </select>
               </div>
               <div class="pfb-dropdown-group">
-                <label class="pfb-dropdown-label">Paths:</label>
-                <select class="pfb-dropdown-select" id="tp-pfb-paths">
-                  <option>Secured Series A</option><option>All Paths</option>
-                </select>
+                <label class="pfb-dropdown-label" style="text-transform: none;">Show ONLY paths that led to a Series A Round</label>
+                <div style="margin-top: 4px;">
+                  <label class="toggle-switch">
+                    <input type="checkbox" id="tp-pfb-seriesa-toggle-expanded">
+                    <span class="toggle-slider"></span>
+                  </label>
+                </div>
               </div>
-              <div class="pfb-dropdown-group">
-                <label class="pfb-dropdown-label">Narrative:</label>
-                <select class="pfb-dropdown-select" id="tp-pfb-narrative">
-                  <option>General Overview</option><option>Grant-Focus</option><option>PreSeed to Seed</option><option>Seed-only</option><option>Fast track to Series A</option>
-                </select>
-              </div>
-            </div>
-            <div class="pfb-apply-row">
-              <button class="pfb-apply-btn" id="tp-pfb-apply">Apply Filters</button>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Grid: chart left, paths right -->
+      <!-- Full-width paths section -->
       <div class="journey-step">
-        <div class="tp-grid">
-          <div class="tp-chart-wrapper" style="display:flex; flex-direction:column; gap: var(--sp-3);">
-            <div class="tp-chart-title" style="margin-bottom: 0;">Path Distribution <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); white-space: nowrap;">(for the first 4 instruments)</span></div>
-            <div class="tp-chart-container" style="margin-top: -4px;">
-              <div class="legend" id="tp-legend"></div>
-              <div class="tp-chart" id="tp-chart"></div>
+        <div class="tp-paths-container" style="position: relative; z-index: 99;">
+          <div class="tp-title-card" style="display: flex; align-items: center; justify-content: space-between;">
+            <div style="display: flex; align-items: center; gap: var(--sp-2);">
+              <span class="tp-paths-title" style="margin-bottom: 0;">Most Common Paths in your Ecosystem:</span>
+              <div class="info-icon-wrapper">
+                <div class="info-icon">i</div>
+                <div class="info-tooltip tooltip-down">
+                  <strong>Most Common Paths</strong><br/>
+                  These are the most frequently chosen funding sequences by startups in your ecosystem. Click on a path to see its details.
+                </div>
+              </div>
+            </div>
+            
+            <div class="pfb-dropdown-group" style="display: flex; flex-direction: row; align-items: center; gap: var(--sp-2); margin: 0;">
+              <span class="pfb-dropdown-label" style="margin: 0; padding: 0;">OPTIONAL: CHOOSE A FOCUS:</span>
+              <select class="pfb-dropdown-select" id="tp-pfb-narrative" style="padding-top: var(--sp-1); padding-bottom: var(--sp-1); border-color: var(--accent-lighter);">
+                <option>General Overview</option><option>Grant-Focus</option><option>PreSeed to Seed</option><option>Seed-only</option><option>Fast track to Series A</option>
+              </select>
             </div>
           </div>
-          <div class="tp-paths-container">
-            <div class="tp-paths-title">Most Common Paths: <span style="font-size: 12px; font-weight: 400; color: var(--text-muted); white-space: nowrap;">(# startups choosing that path)</span></div>
-            <div class="tp-paths-list" id="tp-paths-list"></div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats row -->
-      <div class="journey-step">
-        <div class="tp-stats-row">
-          <div class="stat-card tp-stat-card" id="tp-stat-card-first">
-            <div class="stat-icon tp-stat-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
-              </svg>
-            </div>
-            <div>
-              <div class="stat-label">Median Time to first Round:</div>
-              <div class="stat-value" id="tp-stat-first">${narrativeStats[currentNarrative].medianFirst}</div>
-            </div>
-          </div>
-          <div class="stat-card tp-stat-card" id="tp-stat-card-between">
-            <div class="stat-icon tp-stat-icon">
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
-                <circle cx="12" cy="12" r="10"></circle>
-                <path d="M12 6v6l4 2"></path>
-              </svg>
-            </div>
-            <div>
-              <div class="stat-label">Median Time between Rounds:</div>
-              <div class="stat-value" id="tp-stat-between">${narrativeStats[currentNarrative].medianBetween}</div>
-            </div>
-          </div>
+          <div class="tp-paths-list tp-paths-list--bordered" id="tp-paths-list"></div>
         </div>
       </div>
     </div>
   `;
 
-  /* ── "Start your Journey" → reveal main content ── */
-  const introEl = document.getElementById('tp-intro');
   const mainEl = document.getElementById('tp-main');
-  const startBtn = document.getElementById('tp-start-btn');
-  const narrativeSelect = document.getElementById('tp-hero-narrative');
 
   /* ── Persistent Filter Bar elements ── */
   const pfb = document.getElementById('tp-pfb');
   const pfbToggle = document.getElementById('tp-pfb-toggle');
-  const pfbApply = document.getElementById('tp-pfb-apply');
   const pfbCountry = document.getElementById('tp-pfb-country');
   const pfbIndustry = document.getElementById('tp-pfb-industry');
-  const pfbPaths = document.getElementById('tp-pfb-paths');
+  const toggleCollapsed = document.getElementById('tp-pfb-seriesa-toggle-collapsed');
+  const toggleExpanded = document.getElementById('tp-pfb-seriesa-toggle-expanded');
   const pfbNarrative = document.getElementById('tp-pfb-narrative');
+
+  /* Sync toggles */
+  toggleCollapsed.addEventListener('change', (e) => { toggleExpanded.checked = e.target.checked; });
+  toggleExpanded.addEventListener('change', (e) => { toggleCollapsed.checked = e.target.checked; });
+
+  /* Pre-fill PFB from global filters */
+  pfbCountry.value = filters.location;
+  pfbIndustry.value = filters.industry;
 
   /* ── Toggle expand/collapse ── */
   pfbToggle.addEventListener('click', () => {
     pfb.classList.toggle('expanded');
   });
 
-  /* ── Sync intro → persistent bar and update chips ── */
-  function syncIntroToPfb() {
-    pfbCountry.value = document.getElementById('tp-hero-country').value;
-    pfbIndustry.value = document.getElementById('tp-hero-industry').value;
-    pfbPaths.value = document.getElementById('tp-hero-paths').value;
-    pfbNarrative.value = document.getElementById('tp-hero-narrative').value;
-    updateChips();
-  }
-
   function updateChips() {
     document.getElementById('tp-pfb-cv-country').textContent = pfbCountry.value;
     document.getElementById('tp-pfb-cv-industry').textContent = pfbIndustry.value;
-    document.getElementById('tp-pfb-cv-paths').textContent = pfbPaths.value;
-    document.getElementById('tp-pfb-cv-narrative').textContent = pfbNarrative.value;
   }
 
-  /* ── Apply Filters button ── */
-  pfbApply.addEventListener('click', () => {
+  function handleFilterChange() {
     currentNarrative = pfbNarrative.value;
     updateChips();
     pfb.classList.remove('expanded');
+    // Sync location/industry back to global store
+    setGlobalFilters({ location: pfbCountry.value, industry: pfbIndustry.value });
     rebuildContent();
+  }
+
+  /* Listeners mapping */
+  pfbCountry.addEventListener('change', handleFilterChange);
+  pfbIndustry.addEventListener('change', handleFilterChange);
+  pfbNarrative.addEventListener('change', handleFilterChange);
+
+  toggleCollapsed.addEventListener('change', (e) => { 
+    toggleExpanded.checked = e.target.checked; 
+    handleFilterChange();
+  });
+  toggleExpanded.addEventListener('change', (e) => { 
+    toggleCollapsed.checked = e.target.checked; 
+    handleFilterChange();
   });
 
-  startBtn.addEventListener('click', () => {
-    currentNarrative = narrativeSelect.value;
-    updateContext('industry', document.getElementById('tp-hero-industry').value);
-    updateContext('country', document.getElementById('tp-hero-country').value);
-    syncIntroToPfb();
-
-    // Fade out intro
-    introEl.style.transition = 'opacity 0.6s ease, transform 0.6s ease';
-    introEl.style.opacity = '0';
-    introEl.style.transform = 'translateY(-30px)';
-
-    setTimeout(() => {
-      introEl.style.display = 'none';
-      mainEl.classList.remove('hidden');
-
-      // Build chart & paths
-      buildLegend();
-      buildChart();
-      buildPaths();
-
-      // Start sequential reveal of main content
-      journeyReveal(mainEl, 200, 500);
-    }, 600);
-  });
-
-  /* ── Rebuild chart + paths when narrative changes ── */
+  /* ── Rebuild paths when filters change ── */
   function rebuildContent() {
     selectedPathIdx = null;
-    const chartEl = document.getElementById('tp-chart');
     const pathsList = document.getElementById('tp-paths-list');
-    if (chartEl) chartEl.innerHTML = '';
     if (pathsList) pathsList.innerHTML = '';
-
-    buildChart(true);
     buildPaths();
-
-    const stats = narrativeStats[currentNarrative] || narrativeStats['General Overview'];
-    updateStats(stats.medianFirst, stats.medianBetween);
   }
 
-  /* ── Legend (only once) ── */
-  function buildLegend() {
-    const legendEl = document.getElementById('tp-legend');
-    if (!legendEl || legendEl.children.length > 0) return;
-    instruments.forEach(inst => {
-      legendEl.innerHTML += `
-        <div class="legend-item">
-          <div class="legend-dot" style="background:${inst.color}"></div>
-          ${inst.name} (${inst.abbr})
-        </div>`;
-    });
-  }
+  const mockCounts = [142, 98, 74, 56, 34, 28, 21, 15, 9, 4];
 
-  /* ── Chart builder ── */
-  function buildChart(instant = false) {
-    const chartEl = document.getElementById('tp-chart');
-    const chartData = narrativeChartData[currentNarrative] || narrativeChartData['General Overview'];
+  /* ── Investor data by instrument ── */
+  const investorData = {
+    grant: {
+      title: 'Grant Investors',
+      icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 00-2-2h-4a2 2 0 00-2 2v16"/></svg>',
+      investors: ['HTGF – 320 deals', 'EXIST – 212 deals', 'Synergy – 103 deals', 'ERC – 67 deals', 'DFG – 47 deals'],
+    },
+    preseed: {
+      title: 'PreSeed Investors',
+      icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/></svg>',
+      investors: ['Antler – 285 deals', 'Plug & Play – 198 deals', 'APX – 142 deals', 'Entrepreneur First – 89 deals', 'Seedcamp – 61 deals'],
+    },
+    seed: {
+      title: 'Seed Investors',
+      icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>',
+      investors: ['Point Nine – 310 deals', 'Cherry Ventures – 224 deals', 'Earlybird – 156 deals', 'HV Capital – 98 deals', 'Creandum – 72 deals'],
+    },
+    'series-a': {
+      title: 'Series A Investors',
+      icon: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>',
+      investors: ['Sequoia – 425 deals', 'Index Ventures – 318 deals', 'Atomico – 187 deals', 'Balderton – 134 deals', 'Northzone – 89 deals'],
+    },
+  };
 
-    chartData.forEach((round, rIdx) => {
-      const groupEl = document.createElement('div');
-      groupEl.className = 'tp-bar-group';
-      const stackEl = document.createElement('div');
-      stackEl.className = 'tp-bar-stack';
-      stackEl.dataset.col = rIdx;
+  const allInstrumentIds = ['grant', 'preseed', 'seed', 'series-a'];
 
-      round.segments.forEach(seg => {
-        const segEl = document.createElement('div');
-        segEl.className = 'tp-bar-segment';
-        segEl.dataset.instrument = seg.instrument;
-        segEl.dataset.col = rIdx;
-        segEl.dataset.pct = seg.pct;
-        segEl.style.background = getColor(seg.instrument);
-        segEl.style.height = '0%';
-        segEl.title = `${instruments.find(i => i.id === seg.instrument)?.name}: ${seg.pct}%`;
+  function buildDetailPanel(path, count) {
+    const pathInstruments = new Set(path.steps.filter(Boolean));
 
-        // Inline percentage label (shown on hover/highlight)
-        const pctSpan = document.createElement('span');
-        pctSpan.className = 'tp-seg-pct';
-        pctSpan.textContent = seg.pct + '%';
-        segEl.appendChild(pctSpan);
+    const investorBoxes = allInstrumentIds.map(instId => {
+      const data = investorData[instId];
+      const isFilled = pathInstruments.has(instId);
+      const listHTML = isFilled
+        ? data.investors.map(inv => `<li>${inv}</li>`).join('')
+        : '<li class="tp-inv-empty">—</li>'.repeat(5);
 
-        const delay = instant ? 50 + rIdx * 80 : 600 + rIdx * 300;
-        setTimeout(() => { segEl.style.height = seg.pct + '%'; }, delay);
+      return `
+        <div class="tp-investor-box active">
+          <div class="tp-inv-header">
+            <div class="tp-inv-icon">${data.icon}</div>
+            <span class="tp-inv-title">${data.title}</span>
+          </div>
+          <ol class="tp-inv-list">${listHTML}</ol>
+        </div>
+      `;
+    }).join('');
 
-        segEl.addEventListener('mouseenter', () => {
-          if (selectedPathIdx !== null) return;
-          document.querySelectorAll('.tp-bar-segment').forEach(s => {
-            if (s.dataset.instrument === seg.instrument) s.classList.add('highlighted');
-            else s.classList.add('dimmed');
-          });
-        });
-        segEl.addEventListener('mouseleave', () => {
-          if (selectedPathIdx !== null) return;
-          document.querySelectorAll('.tp-bar-segment').forEach(s => s.classList.remove('highlighted', 'dimmed'));
-        });
-
-        stackEl.appendChild(segEl);
-      });
-
-      const labelEl = document.createElement('div');
-      labelEl.className = 'tp-bar-label';
-      labelEl.textContent = round.label;
-      groupEl.appendChild(stackEl);
-      groupEl.appendChild(labelEl);
-      chartEl.appendChild(groupEl);
-    });
+    return `
+      <div class="tp-path-detail">
+        <div class="tp-stats-row">
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+                <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div class="stat-label">Startups choosing this path:</div>
+              <div class="stat-value">${count}</div>
+            </div>
+          </div>
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div class="stat-label">Median Time to first Round:</div>
+              <div class="stat-value">${path.medianFirst}</div>
+            </div>
+          </div>
+          <div class="stat-card tp-stat-card active">
+            <div class="stat-icon tp-stat-icon">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle>
+                <path d="M12 6v6l4 2"></path>
+              </svg>
+            </div>
+            <div style="flex:1;">
+              <div class="stat-label">Median Time between Rounds:</div>
+              <div class="stat-value">${path.medianBetween}</div>
+            </div>
+          </div>
+        </div>
+        <div class="tp-investor-row">${investorBoxes}</div>
+      </div>
+    `;
   }
 
   /* ── Paths list builder ── */
   function buildPaths() {
     const pathsList = document.getElementById('tp-paths-list');
     const activeData = getActivePathsData();
-    const pathsData = activeData[currentNarrative] || activeData['General Overview'];
+    let pathsData = activeData[currentNarrative] || activeData['General Overview'];
 
-    const mockCounts = [142, 98, 74, 56, 34, 28, 21, 15, 9, 4];
+    const isSeriesA = document.getElementById('tp-pfb-seriesa-toggle-collapsed')?.checked;
+    if (isSeriesA) {
+      pathsData = pathsData.filter(path => path.steps.includes('series-a'));
+    }
+
+    const pfbCountry = document.getElementById('tp-pfb-country');
+    const pfbIndustry = document.getElementById('tp-pfb-industry');
+    const seedStr = (pfbCountry?.value || '') + (pfbIndustry?.value || '') + isSeriesA + currentNarrative;
+    pathsData = shufflePaths(pathsData, seedStr);
 
     pathsData.forEach((path, idx) => {
-      const count = mockCounts[idx] || 0;
       const cardEl = document.createElement('div');
       cardEl.className = 'tp-path-card';
       cardEl.id = `tp-path-${idx}`;
+      const badgesHTML = path.steps.filter(Boolean).map(stepId => {
+        const inst = instruments.find(i => i.id === stepId) || { name: stepId, color: 'var(--text-main)' };
+        return `<div style="font-size: 0.875rem; font-weight: 600; padding: 4px 12px; border-radius: 6px; white-space: nowrap; color: ${inst.color}; background: color-mix(in srgb, ${inst.color} 10%, transparent); display: inline-flex; align-items: center; justify-content: center;">${inst.name}</div>`;
+      }).join('<div style="color: var(--text-muted); font-size: 1.2rem; font-weight: 400; padding: 0 4px; display: inline-flex; align-items: center;">&ndash;</div>');
+
       cardEl.innerHTML = `
-        <div class="tp-rank">${path.rank}</div>
-        <div class="tp-path-name">${path.name} <span style="color: var(--text-muted); font-weight: 400;">(${count})</span></div>
-        <button class="tp-path-detail-btn">Details</button>
+        <div class="tp-path-header">
+          <div class="tp-rank">${idx + 1}</div>
+          <div class="tp-path-name" style="display:flex; align-items:center;">${badgesHTML}</div>
+          <button class="tp-path-detail-btn" id="tp-path-btn-${idx}">Details</button>
+        </div>
       `;
-      cardEl.addEventListener('click', () => selectPath(idx));
+      cardEl.querySelector('.tp-path-header').addEventListener('click', () => selectPath(idx));
       pathsList.appendChild(cardEl);
     });
   }
@@ -623,58 +597,66 @@ export function renderTypicalPaths(container) {
   /* ── Path Selection ── */
   function selectPath(idx) {
     if (selectedPathIdx === idx) { deselectPath(); return; }
+
+    // Collapse previous
+    if (selectedPathIdx !== null) {
+      deselectPath(true);
+    }
+
     selectedPathIdx = idx;
     const activeData = getActivePathsData();
-    const pathsData = activeData[currentNarrative] || activeData['General Overview'];
+    let pathsData = activeData[currentNarrative] || activeData['General Overview'];
+    const isSeriesA = document.getElementById('tp-pfb-seriesa-toggle-collapsed')?.checked;
+    if (isSeriesA) {
+      pathsData = pathsData.filter(path => path.steps.includes('series-a'));
+    }
+    
+    const pfbCountry = document.getElementById('tp-pfb-country');
+    const pfbIndustry = document.getElementById('tp-pfb-industry');
+    const seedStr = (pfbCountry?.value || '') + (pfbIndustry?.value || '') + isSeriesA + currentNarrative;
+    pathsData = shufflePaths(pathsData, seedStr);
+
     const path = pathsData[idx];
+    const count = mockCounts[idx] || 0;
 
-    document.querySelectorAll('.tp-path-card').forEach((c, ci) => c.classList.toggle('selected', ci === idx));
-    document.querySelectorAll('.tp-bar-segment').forEach(seg => {
-      const col = parseInt(seg.dataset.col);
-      const inst = seg.dataset.instrument;
-      const pathInst = path.steps[col];
-      if (pathInst && inst === pathInst) { seg.classList.add('highlighted'); seg.classList.remove('dimmed'); }
-      else { seg.classList.remove('highlighted'); seg.classList.add('dimmed'); }
+    const cardEl = document.getElementById(`tp-path-${idx}`);
+    cardEl.classList.add('selected');
+
+    // Change button to X
+    const btn = document.getElementById(`tp-path-btn-${idx}`);
+    if (btn) btn.innerHTML = '<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>';
+
+    // Insert detail panel
+    const detailHTML = buildDetailPanel(path, count);
+    cardEl.insertAdjacentHTML('beforeend', detailHTML);
+
+    // Animate in
+    const detail = cardEl.querySelector('.tp-path-detail');
+    requestAnimationFrame(() => {
+      detail.classList.add('visible');
     });
-    updateStats(path.medianFirst, path.medianBetween);
-
-    // Highlight stat cards
-    document.querySelectorAll('.tp-stat-card').forEach(c => c.classList.add('active'));
-
-    // AI Expert evaluates the path
-    handlePathSelection(path.name, Math.floor(Math.random() * 20) + 10); // Mock series A rate
   }
 
-  function deselectPath() {
-    selectedPathIdx = null;
-    const activeData = getActivePathsData();
-    // Re-grab stats from the original path logic or narrativeStats based on your design choice. 
-    // Here we revert to the default narrative stats for the current narrative.
-    const stats = narrativeStats[currentNarrative] || narrativeStats['General Overview'];
-    document.querySelectorAll('.tp-path-card').forEach(c => c.classList.remove('selected'));
-    document.querySelectorAll('.tp-bar-segment').forEach(s => s.classList.remove('highlighted', 'dimmed'));
-    document.querySelectorAll('.tp-stat-card').forEach(c => c.classList.remove('active'));
-    updateStats(stats.medianFirst, stats.medianBetween);
+  function deselectPath(skipReset) {
+    if (selectedPathIdx !== null) {
+      const cardEl = document.getElementById(`tp-path-${selectedPathIdx}`);
+      if (cardEl) {
+        cardEl.classList.remove('selected');
+        const btn = document.getElementById(`tp-path-btn-${selectedPathIdx}`);
+        if (btn) btn.innerHTML = 'Details';
+        const detail = cardEl.querySelector('.tp-path-detail');
+        if (detail) {
+          detail.classList.remove('visible');
+          setTimeout(() => detail.remove(), 300);
+        }
+      }
+    }
+    if (!skipReset) selectedPathIdx = null;
   }
 
-  function updateStats(first, between) {
-    const firstEl = document.getElementById('tp-stat-first');
-    const betweenEl = document.getElementById('tp-stat-between');
-    [firstEl, betweenEl].forEach(el => {
-      if (!el) return;
-      el.style.transition = 'opacity 0.25s ease, transform 0.25s ease';
-      el.style.opacity = '0'; el.style.transform = 'translateY(6px)';
-    });
-    setTimeout(() => {
-      if (firstEl) firstEl.textContent = first;
-      if (betweenEl) betweenEl.textContent = between;
-      [firstEl, betweenEl].forEach(el => {
-        if (!el) return;
-        el.style.opacity = '1'; el.style.transform = 'translateY(0)';
-      });
-    }, 260);
-  }
+  // Build content immediately
+  buildPaths();
 
-  // Reveal the intro steps
-  journeyReveal(introEl, 300, 500);
+  // Reveal journey steps
+  journeyReveal(mainEl, 200, 500);
 }
